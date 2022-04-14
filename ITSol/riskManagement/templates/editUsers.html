@@ -21,7 +21,30 @@
 
         {% if privileges == "admin" %}
 
-            TODO editace uživatele
+        <form action="saveEditUser/{{ id }}" method="post">
+            {% csrf_token %}
+            <input type="text" name="firstName" placeholder="Jméno" value="{{ user.firstName }}">
+            <br />
+            <input type="text" name="lastName" placeholder="Příjmení" value="{{ user.lastName }}">
+            <br />
+            <input type="text" name="email" placeholder="E-mail" value="{{ user.email }}">
+            <br />
+            <input type="text" name="phoneNum" placeholder="Telefonní číslo" value="{{ user.phoneNum }}">
+            <br />
+            <input type="text" name="userLogin" placeholder="Login" value="{{ user.userLogin }}">
+            <br />
+            <input type="password" name="password" placeholder="Heslo">
+            <br />
+            <select name="privileges">
+                <option value="admin">Administrátor</option>
+                <option value="project-manager">Projektový manažer</option>
+                <option value="risk-manager">Manažer rizik</option>
+                <option value="user">Běžný uživatel</option>
+            </select>
+            <br />
+            <input type="submit" value="Uložit změny">
+            
+        </form>
     
         {% else %}
             Nemáte dostatečné oprávnění pro zobrazení modulu

@@ -21,7 +21,29 @@
 
         {% if privileges == "admin" %}
 
-            TODO formulář na přidávání uživatelů
+        <form action="saveNewUser/" method="post">
+            {% csrf_token %}
+            <input type="text" name="firstName" placeholder="Jméno">
+            <br />
+            <input type="text" name="lastName" placeholder="Příjmení">
+            <br />
+            <input type="text" name="email" placeholder="E-mail">
+            <br />
+            <input type="text" name="phoneNum" placeholder="Telefonní číslo">
+            <br />
+            <input type="text" name="userLogin" placeholder="Login">
+            <br />
+            <input type="password" name="password" placeholder="Heslo">
+            <br />
+            <select name="privileges">
+                <option value="admin">Administrátor</option>
+                <option value="project-manager">Projektový manažer</option>
+                <option value="risk-manager">Manažer rizik</option>
+                <option value="user">Běžný uživatel</option>
+            </select>
+            <br />
+            <input type="submit" value="Přidat uživatele">            
+        </form>
 
         {% else %}
             Nemáte dostatečné oprávnění pro zobrazení modulu

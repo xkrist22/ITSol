@@ -11,9 +11,9 @@
         
         <form action="login/" method="post">
             {% csrf_token %}
-            <input name="login" placeholder="login">
+            <input type="text" name="login" placeholder="login">
             <br />
-            <input name="password" placeholder="password">
+            <input type="password" name="password" placeholder="password">
             <br>
             <input type="submit" value="login">
         </form>
