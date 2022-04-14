@@ -1,26 +1,13 @@
 <!DOCTYPE html>
 <html>
     <head>
-        {% load static %}
-        <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
+        {% include 'head.html' %}
     </head>
     <body>
-        <img src="logo.png" alt="logo ITSol">
-
-        <h1>Systém pro podporu řízení rizik v projektech</h1> 
-
-        <nav>
-            {% if privileges == "admin" %}
-                <a href="../users/">Správa uživatelů</a>
-            {% endif %}
-            {% if privileges == "project-manager" or privileges == "admin" %}
-                <a href="">Vytvořit projekt</a>
-            {% endif %}
-            {% if privileges == "project-manager" or privileges == "admin" or privileges == "risk-manager" or privileges == "user" %}
-                <a href="">Moje projekty</a>
-            {% endif %}
-        </nav>
-        {{ msg }}
+        {% include 'nav.html' %}
+        <div class="center msg">
+            {{ msg }}
+        </div>
     </body>
 </html>
 

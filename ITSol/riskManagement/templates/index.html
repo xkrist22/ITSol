@@ -1,22 +1,26 @@
 <!DOCTYPE html>
 <html>
     <head>
-        {% load static %}
-        <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
+        {% include "head.html" %}
     </head>
     <body>
-        <img src="logo.png" alt="Logo ITSol">
-
-        <h1>Systém pro podporu řízení rizik v projektech</h1> 
+        <div class="header">
+            {% load static %}
+            <img src="{% static 'logo.png' %}" alt="Logo ITSol">
         
-        <form action="login/" method="post">
-            {% csrf_token %}
-            <input type="text" name="login" placeholder="login">
-            <br />
-            <input type="password" name="password" placeholder="password">
-            <br>
-            <input type="submit" value="login">
-        </form>
+            <h1>Systém pro podporu řízení rizik v projektech</h1>     
+        </div>
+                
+        <div class="center">
+            <form action="login/" method="post">
+                {% csrf_token %}
+                <input type="text" name="login" placeholder="login">
+                <br />
+                <input type="password" name="password" placeholder="password">
+                <br>
+                <input type="submit" value="login">
+            </form>
+        </div>
     </body>
 </html>
 

@@ -1,50 +1,40 @@
 <!DOCTYPE html>
 <html>
     <head>
-
+        {% include 'head.html' %}
     </head>
     <body>
-        <img src="logo.png" alt="logo ITSol">
-
-        <h1>Systém pro podporu řízení rizik v projektech</h1> 
-
-        <nav>
-            {% if privileges == "admin" %}
-                <a href="../users/">Správa uživatelů</a>
-            {% endif %}
-            {% if privileges == "project-manager" or privileges == "admin" %}
-                <a href="">Vytvořit projekt</a>
-            {% endif %}
-            {% if privileges == "project-manager" or privileges == "admin" or privileges == "risk-manager" or privileges == "user" %}
-                <a href="">Moje projekty</a>
-            {% endif %}
-        </nav>
-
+        {% include 'nav.html' %}
+        
         {% if privileges == "admin" %}
             <table border="1">
-                <th>Křestní jméno</th>
-                <th>Příjmení</th>
-                <th>E-mail</th>
-                <th>Telefonní číslo</th>
-                <th>Login</th>
-                <th>Práva</th>
-                <th></th>
-                <th></th>
+                <tr>
+                    <th>ID</th>
+                    <th>Křestní jméno</th>
+                    <th>Příjmení</th>
+                    <th>E-mail</th>
+                    <th>Telefonní číslo</th>
+                    <th>Login</th>
+                    <th>Práva</th>
+                    <th></th>
+                    <th></th>
+                </tr>
                 {% for x in users %}
                 <tr>
+                <th>{{x.id}}</th>
                 <td>{{ x.firstName }}</td>
                 <td>{{ x.lastName }}</td>
                 <td>{{ x.email }}</td>
                 <td>{{ x.phoneNum }}</td>
                 <td>{{ x.userLogin }}</td>
                 <td>{{ x.privileges }}</td>
-                <td><a href="editUser/{{ x.id }}">✏️</a></td>
-                <td><a href="removeUser/{{ x.id }}">🗑️</a></td>
+                <td class="center"><a href="editUser/{{ x.id }}">✏️</a></td>
+                <td class="center"><a href="removeUser/{{ x.id }}">🗑️</a></td>
                 </tr>
                 {% endfor %}
             </table>
     
-            <a href="addUser/">Přidat uživatele</a>
+            <a class="button" href="addUser/">Přidat uživatele</a>
         {% else %}
             Nemáte dostatečné oprávnění pro zobrazení modulu
         {% endif %}

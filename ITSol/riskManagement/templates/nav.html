@@ -1,0 +1,19 @@
+<div class="header">
+    {% load static %}
+    <img src="{% static 'logo.png' %}" alt="Logo ITSol">
+
+    <h1>Systém pro podporu řízení rizik v projektech</h1>     
+</div>
+
+
+<nav>
+    {% if privileges == "admin" %}
+        <a href="{% url 'users' %}">Správa uživatelů</a>
+    {% endif %}
+    {% if privileges == "project-manager" or privileges == "admin" %}
+        <a href="">Vytvořit projekt</a>
+    {% endif %}
+    {% if privileges == "project-manager" or privileges == "admin" or privileges == "risk-manager" or privileges == "user" %}
+        <a href="">Moje projekty</a>
+    {% endif %}
+</nav>
