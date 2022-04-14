@@ -58,6 +58,8 @@ def removeUser(request, id):
     if request.session.get("privileges") != "admin":
         return HttpResponseRedirect(reverse("home", args=("Nemáte dostatečné oprávnění pro odstranění uživatele",)))
     user = User.objects.get(id=id)
+    if user.privileges == "admin":
+        return HttpResponseRedirect(reverse("home", args=("Nelze odstranit administrátora!",)))
     user.delete()
     return HttpResponseRedirect(reverse("home", args=("Uživatel byl odebrán",)))
 
@@ -154,3 +156,11 @@ def projects(request):
     template = loader.get_template("projects.html")
     return HttpResponse(template.render(context, request))
     
+
+def projectDetail(request, id):
+    # TODO
+    template = loader.get_template("projectDetail.html")
+    context = {
+        "privileges": request.session.get("privileges"),
+    }
+    return HttpResponse(template.render(context, request))
