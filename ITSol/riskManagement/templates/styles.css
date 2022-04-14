@@ -1,0 +1,18 @@
+:root {
+    --light: #bbadff;
+    --dark: #304C89;
+    --warm: #DAB6FC;
+    --normal: #8E94F2;
+    --alarm: #BF4E30;
+}
+
+body {
+    background-color: var(--light);
+    color: var(--dark);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 16px;
+}
+
+h1 {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}

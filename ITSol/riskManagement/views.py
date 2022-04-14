@@ -6,6 +6,7 @@ from django.urls import reverse
 from .models import User, RiskType, Risk, Project, Phase
 from hashlib import md5
 
+
 def index(request):
     template = loader.get_template("index.html")
     return HttpResponse(template.render({}, request))
@@ -18,7 +19,9 @@ def login(request):
         user = User.objects.get(userLogin=userLogin)
         getHash = md5(userPassword.encode()).hexdigest()
         if getHash == user.password:
-            return HttpResponseRedirect(reverse("home", args=(getHash,)))
+            request.session["login"] = userLogin
+            request.session["privileges"] = user.privileges
+            return HttpResponseRedirect(reverse("home"))
         else:
             return HttpResponseRedirect(reverse("index"))
 
@@ -26,52 +29,46 @@ def login(request):
             return HttpResponseRedirect(reverse("index"))
 
 
-def home(request, hash):
-    user = User.objects.get(password=hash)    
+def home(request):
     context = {
-        "privileges": user.privileges,
-        "hash": hash
+        "privileges": request.session.get("privileges"),
     }
     template = loader.get_template("home.html")
     return HttpResponse(template.render(context, request))
 
 
-def users(request, hash):
-    user = User.objects.get(password=hash)    
+def users(request):
     context = {
-        "privileges": user.privileges,
+        "privileges": request.session.get("privileges"),
         "users": User.objects.all().values(),
-        "hash": hash
     }
+
+
     template = loader.get_template("users.html")
     return HttpResponse(template.render(context, request))
 
 
-def removeUser(request, id, hash):
-    adminUser = User.objects.get(password=hash)
-    if adminUser.privileges != "admin":
-        return HttpResponseRedirect(reverse("index"))
+def removeUser(request, id):
+    if request.session.get("privileges") != "admin":
+        return HttpResponseRedirect(reverse("home"))
     user = User.objects.get(id=id)
     user.delete()
     return HttpResponseRedirect(reverse("home"))
 
 
-def editUser(request, id, hash):
-    adminUser = User.objects.get(password=hash)
+def editUser(request, id):
     editedUser = User.objects.get(id=id)
+    print(request.session.get("privieges"))
     context = {
-        "privileges": adminUser.privileges,
-        "hash": hash
+        "privileges": request.session.get("privileges"),
     }
     template = loader.get_template("editUsers.html")
     return HttpResponse(template.render(context, request))
 
 
-def addUser(request, hash):
-    user = User.objects.get(password=hash) 
+def addUser(request):
     context = {
-        "privileges": user.privileges,
-        "hash": hash
+        "privileges": request.session.get("privileges"),
     }
     template = loader.get_template("addUser.html")
     return HttpResponse(template.render(context, request))

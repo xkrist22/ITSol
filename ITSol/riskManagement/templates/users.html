@@ -10,7 +10,7 @@
 
         <nav>
             {% if privileges == "admin" %}
-                <a href="../users/{{ hash }}">Správa uživatelů</a>
+                <a href="../users/">Správa uživatelů</a>
             {% endif %}
             {% if privileges == "project-manager" or privileges == "admin" %}
                 <a href="">Vytvořit projekt</a>
@@ -38,13 +38,13 @@
                 <td>{{ x.phoneNum }}</td>
                 <td>{{ x.userLogin }}</td>
                 <td>{{ x.privileges }}</td>
-                <td><a href="editUser/{{ x.id }}&{{ hash }}">Editovat</a></td>
-                <td><a href="removeUser/{{ x.id }}&{{ hash }}">Odstranit</a></td>
+                <td><a href="editUser/{{ x.id }}">Editovat</a></td>
+                <td><a href="removeUser/{{ x.id }}">Odstranit</a></td>
                 </tr>
                 {% endfor %}
             </table>
     
-            <a href="addUser/{{ hash }}">Přidat uživatele</a>
+            <a href="addUser/">Přidat uživatele</a>
         {% else %}
             Nemáte dostatečné oprávnění pro zobrazení modulu
         {% endif %}
