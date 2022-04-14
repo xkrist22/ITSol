@@ -5,12 +5,11 @@
     </head>
     <body>
         <img src="logo.png" alt="logo ITSol">
-
         <h1>Systém pro podporu řízení rizik v projektech</h1> 
 
         <nav>
             {% if privileges == "admin" %}
-                <a href="../users/{{ hash }}">Správa uživatelů</a>
+                <a href="../{{ hash }}">Správa uživatelů</a>
             {% endif %}
             {% if privileges == "project-manager" or privileges == "admin" %}
                 <a href="">Vytvořit projekt</a>
@@ -19,6 +18,14 @@
                 <a href="">Moje projekty</a>
             {% endif %}
         </nav>
+
+        {% if privileges == "admin" %}
+
+            TODO formulář na přidávání uživatelů
+
+        {% else %}
+            Nemáte dostatečné oprávnění pro zobrazení modulu
+        {% endif %}
 
     </body>
 </html>

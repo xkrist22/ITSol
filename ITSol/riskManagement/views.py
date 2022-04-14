@@ -18,7 +18,7 @@ def login(request):
         user = User.objects.get(userLogin=userLogin)
         getHash = md5(userPassword.encode()).hexdigest()
         if getHash == user.password:
-            return HttpResponseRedirect(reverse("home", args=(user.id,)))
+            return HttpResponseRedirect(reverse("home", args=(getHash,)))
         else:
             return HttpResponseRedirect(reverse("index"))
 
@@ -26,12 +26,52 @@ def login(request):
             return HttpResponseRedirect(reverse("index"))
 
 
-def home(request, id):
-    user = User.objects.get(id=id)    
+def home(request, hash):
+    user = User.objects.get(password=hash)    
     context = {
-        "privileges": user.privileges
+        "privileges": user.privileges,
+        "hash": hash
     }
     template = loader.get_template("home.html")
     return HttpResponse(template.render(context, request))
 
 
+def users(request, hash):
+    user = User.objects.get(password=hash)    
+    context = {
+        "privileges": user.privileges,
+        "users": User.objects.all().values(),
+        "hash": hash
+    }
+    template = loader.get_template("users.html")
+    return HttpResponse(template.render(context, request))
+
+
+def removeUser(request, id, hash):
+    adminUser = User.objects.get(password=hash)
+    if adminUser.privileges != "admin":
+        return HttpResponseRedirect(reverse("index"))
+    user = User.objects.get(id=id)
+    user.delete()
+    return HttpResponseRedirect(reverse("home"))
+
+
+def editUser(request, id, hash):
+    adminUser = User.objects.get(password=hash)
+    editedUser = User.objects.get(id=id)
+    context = {
+        "privileges": adminUser.privileges,
+        "hash": hash
+    }
+    template = loader.get_template("editUsers.html")
+    return HttpResponse(template.render(context, request))
+
+
+def addUser(request, hash):
+    user = User.objects.get(password=hash) 
+    context = {
+        "privileges": user.privileges,
+        "hash": hash
+    }
+    template = loader.get_template("addUser.html")
+    return HttpResponse(template.render(context, request))

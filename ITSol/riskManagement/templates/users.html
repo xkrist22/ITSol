@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+    <head>
+
+    </head>
+    <body>
+        <img src="logo.png" alt="logo ITSol">
+
+        <h1>Systém pro podporu řízení rizik v projektech</h1> 
+
+        <nav>
+            {% if privileges == "admin" %}
+                <a href="../users/{{ hash }}">Správa uživatelů</a>
+            {% endif %}
+            {% if privileges == "project-manager" or privileges == "admin" %}
+                <a href="">Vytvořit projekt</a>
+            {% endif %}
+            {% if privileges == "project-manager" or privileges == "admin" or privileges == "risk-manager" or privileges == "user" %}
+                <a href="">Moje projekty</a>
+            {% endif %}
+        </nav>
+
+        {% if privileges == "admin" %}
+            <table border="1">
+                <th>Křestní jméno</th>
+                <th>Příjmení</th>
+                <th>E-mail</th>
+                <th>Telefonní číslo</th>
+                <th>Login</th>
+                <th>Práva</th>
+                <th></th>
+                <th></th>
+                {% for x in users %}
+                <tr>
+                <td>{{ x.firstName }}</td>
+                <td>{{ x.lastName }}</td>
+                <td>{{ x.email }}</td>
+                <td>{{ x.phoneNum }}</td>
+                <td>{{ x.userLogin }}</td>
+                <td>{{ x.privileges }}</td>
+                <td><a href="editUser/{{ x.id }}&{{ hash }}">Editovat</a></td>
+                <td><a href="removeUser/{{ x.id }}&{{ hash }}">Odstranit</a></td>
+                </tr>
+                {% endfor %}
+            </table>
+    
+            <a href="addUser/{{ hash }}">Přidat uživatele</a>
+        {% else %}
+            Nemáte dostatečné oprávnění pro zobrazení modulu
+        {% endif %}
+
+    </body>
+</html>
+
