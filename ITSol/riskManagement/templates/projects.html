@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {% include 'head.html' %}
+    </head>
+    <body>
+        {% include 'nav.html' %}        
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Jméno</th>
+                <th>Popis</th>
+                <th>Počet fází</th>
+                <th>Počet členů</th>
+                <th>Projektový manažer</th>
+                <th></th>
+            </tr>
+            {% for x in projects %}
+            <tr>
+                <th>{{x.id}}</th>
+                <td>{{ x.name }}</td>
+                <td>{{ x.describtion }}</td>
+                <td>TODO počet fází</td>
+                <td>TODO počet členů</td>
+                <td>{{ project_manager.firstName }} {{project_manager.lastName}}</td>
+                <td class="center"><a href="">🔎</a></td>
+            </tr>
+            {% endfor %}
+        </table>
+    </body>
+</html>
+

@@ -13,4 +13,8 @@ urlpatterns = [
     path('users/addUser/', views.addUser, name='addUser'),
     path('users/addUser/saveNewUser/', views.saveNewUser, name='saveNewUser'),
     path('users/removeUser/<int:id>', views.removeUser, name='removeUser'),
+    path('createProject/', views.createProject, name='createProject'),
+    path('createProject/saveNewProject/', views.saveNewProject, name='saveNewProject'),
+    path('projects/', views.projects, name='projects')
+
 ]

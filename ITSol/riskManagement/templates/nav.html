@@ -11,9 +11,11 @@
         <a href="{% url 'users' %}">Správa uživatelů</a>
     {% endif %}
     {% if privileges == "project-manager" or privileges == "admin" %}
-        <a href="">Vytvořit projekt</a>
+        <a href="{% url 'createProject' %}">Vytvořit projekt</a>
     {% endif %}
     {% if privileges == "project-manager" or privileges == "admin" or privileges == "risk-manager" or privileges == "user" %}
-        <a href="">Moje projekty</a>
+        <a href="{% url 'projects' %}">Moje projekty</a>
+        <a href="{% url 'index' %}">Odhlásit</a>
     {% endif %}
+    
 </nav>

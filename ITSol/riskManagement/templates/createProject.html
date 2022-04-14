@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {% include 'head.html' %}
+    </head>
+    <body>
+        {% include 'nav.html' %}
+
+        {% if privileges == "admin" or privileges == "project-manager" %}
+        <div class="center">
+            <form action="saveNewProject/" method="post" id="newProject">
+                {% csrf_token %}
+                <input type="text" name="name" placeholder="Jméno projektu">
+                <br />
+                <textarea name="describtion" placeholder="Popis projektu"></textarea>
+                <br />
+                <select name="foreignKeyManager" form="newProject">
+                    {% for x in project_managers %}
+                        <option value="{{ x.id }}">{{x.firstName}} {{x.lastName}}</option>
+                    {% endfor %}
+                </select>
+                <br />
+                <input type="submit" value="Vytvořit projekt">            
+            </form>
+        </div>
+        {% else %}
+            Nemáte dostatečné oprávnění pro zobrazení modulu
+        {% endif %}
+
+    </body>
+</html>
+

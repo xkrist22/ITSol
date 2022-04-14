@@ -4,10 +4,14 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.urls import reverse
 from .models import User, RiskType, Risk, Project, Phase
+from django.db.models import Q
 from hashlib import md5
 
 
 def index(request):
+    for key in list(request.session.keys()):
+        del request.session[key]
+
     template = loader.get_template("index.html")
     return HttpResponse(template.render({}, request))
 
@@ -21,6 +25,7 @@ def login(request):
         if getHash == user.password:
             request.session["login"] = userLogin
             request.session["privileges"] = user.privileges
+            request.session["id"] = user.id
             return HttpResponseRedirect(reverse("home", args=("Jste přihlášen",)))
         else:
             return HttpResponseRedirect(reverse("index"))
@@ -110,3 +115,42 @@ def saveEditUser(request, id):
     user.privileges = request.POST["privileges"]
     user.save()
     return HttpResponseRedirect(reverse("home", args=("Změny uživatele byly uloženy",)))
+
+
+def createProject(request):
+    if not (request.session.get("privileges") == "admin" or request.session.get("privileges") == "project-manager"):
+        return HttpResponseRedirect(reverse("home", args=("Není možné vytvořit nový projekt, nemáte dostatečná oprávnění",)))
+    project_managers = User.objects.filter(Q(privileges="admin") | Q(privileges="project-manager")).values()
+    context = {
+        "privileges": request.session.get("privileges"),
+        "project_managers": project_managers
+    }
+    template = loader.get_template("createProject.html")
+    return HttpResponse(template.render(context, request))
+
+
+def saveNewProject(request):
+    if not (request.session.get("privileges") == "admin" or request.session.get("privileges") == "project-manager"):
+        return HttpResponseRedirect(reverse("home", args=("Projekt nebyl vytvořen, nemáte dostatečná oprávnění",)))
+    newProject = Project(
+        name = request.POST["name"],
+        describtion = request.POST["describtion"],
+        foreignKeyManager = User.objects.get(id=request.POST["foreignKeyManager"]),   
+    )
+    newProject.save()
+    newProject.members.add(User.objects.get(id=request.POST["foreignKeyManager"]))
+    newProject.save()
+    return HttpResponseRedirect(reverse("home", args=("Projekt byl vytvořen",)))
+
+
+def projects(request):
+    projects = Project.objects.filter(foreignKeyManager=request.session["id"])
+    project_manager = User.objects.get(id=request.session["id"])
+    context = {
+        "privileges": request.session.get("privileges"),
+        "projects": projects,
+        "project_manager": project_manager
+    }
+    template = loader.get_template("projects.html")
+    return HttpResponse(template.render(context, request))
+    

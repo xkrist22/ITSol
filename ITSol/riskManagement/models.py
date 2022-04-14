@@ -31,7 +31,7 @@ class Risk(models.Model):
 
 class Project(models.Model):
     name = models.CharField(max_length=255)
-    popis = models.CharField(max_length=255)
+    describtion = models.CharField(max_length=255)
     foreignKeyManager = models.ForeignKey(User, on_delete=models.PROTECT)
     members = models.ManyToManyField(User, related_name="projectMembers")
 
