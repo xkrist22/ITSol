@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+    <head>
+
+    </head>
+    <body>
+        <img src="logo.png" alt="logo ITSol">
+
+        <h1>Systém pro podporu řízení rizik v projektech</h1> 
+
+        {% if privileges == "admin" %}
+            <nav>
+                <a href="">Správa uživatelů</a>
+                <a href="">Vytvořit projekt</a>
+                <a href="">Moje projekty</a>
+            </nav>
+        {% endif %}
+
+        {% if privileges == "project-manager" %}
+            <nav>
+                <a href="">Vytvořit projekt</a>
+                <a href="">Moje projekty</a>
+            </nav>        
+        {% endif %}
+
+        {% if privileges == "risk-manager" %}
+            <nav>
+                <a href="">Moje projekty</a>
+            </nav>
+        {% endif %}
+
+        {% if privileges == "user" %}
+            <nav>
+                <a href="">Moje projekty</a>
+            </nav>            
+        {% endif %}
+
+    </body>
+</html>
+

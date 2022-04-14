@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+    <head>
+
+    </head>
+    <body>
+        <img src="logo.png" alt="Logo ITSol">
+
+        <h1>Systém pro podporu řízení rizik v projektech</h1> 
+        
+        <form action="login/" method="post">
+            {% csrf_token %}
+            <input name="login" placeholder="login">
+            <br />
+            <input name="password" placeholder="password">
+            <br>
+            <input type="submit" value="login">
+        </form>
+    </body>
+</html>
+
