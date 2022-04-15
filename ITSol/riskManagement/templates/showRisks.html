@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {% include 'head.html' %}
+    </head>
+    <body>
+        {% include 'nav.html' %}
+        <h2>Registr rizik pro projekt {{ project.name }}, fáze {{ phase.name }}</h2>
+        <table>
+            <th>ID</th>
+            <th>Popis</th>
+            <th>Datum založení</th>
+            <th>Datum ukončení</th>
+            <th>Pravděpodobnost</th>
+            <th>Dopad</th>
+            <th>Stav</th>
+            <th>Cena</th>
+            <th>Schváleno</th>
+            {% if privileges == "admin" or canEditProject %}
+                <th></th>
+                <th></th>
+            {% endif %}
+            <th></th>
+            <th></th>
+
+            {% for x in risks %}
+                <td>{{x.id}}</td>
+                <td>{{x.name}}</td>
+                <td>{{x.describtion}}</td>
+                <td>{{x.dateFrom}}</td>
+                <td>{{x.dateTo}}</td>
+                <td>{{x.probability}}</td>
+                <td>{{x.state}}</td>
+                <td>{{x.price}}</td>
+                <td>{{x.accepted}}</td>
+                {% if privileges == "admin" or canEditProject %}
+                <td class="center"><a href="">✔️ TODO accepted = True</a></td>
+                <td class="center"><a href="">❌ TODO accepted = False</a></td>
+                {% endif %}
+                <td class="center"><a href="">✏️ TODO edit risk</a></td>
+                <td class="center"><a href="">🗑️ TODO remove risk</a></td>
+                {% endfor %}
+        </table>
+
+        <a class="button" href="">Přidat riziko</a>
+    </body>
+</html>
+

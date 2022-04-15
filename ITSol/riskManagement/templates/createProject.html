@@ -7,6 +7,9 @@
         {% include 'nav.html' %}
 
         {% if privileges == "admin" or privileges == "project-manager" %}
+
+        <h2>Vytvořit nový projekt</h2>
+
         <div class="center">
             <form action="saveNewProject/" method="post" id="newProject">
                 {% csrf_token %}
@@ -15,12 +18,22 @@
                 <textarea name="describtion" placeholder="Popis projektu"></textarea>
                 <br />
                 <select name="foreignKeyManager" form="newProject">
+                    <option value="" disabled selected>Projektový manažer</option>
                     {% for x in project_managers %}
                         <option value="{{ x.id }}">{{x.firstName}} {{x.lastName}}</option>
                     {% endfor %}
                 </select>
                 <br />
-                <input type="submit" value="Vytvořit projekt">            
+                <select name="foreignKeyManagerRisk" form="newProject">
+                    <option value="" disabled selected>Manažer rizik</option>
+                    {% for x in risk_managers %}
+                        <option value="{{ x.id }}">{{x.firstName}} {{x.lastName}}</option>
+                    {% endfor %}
+                </select>
+                <br />
+                <a id="addMemberButton" style="width:85px;" class="button" onclick="addMemberInput()">Přidat člena</a>
+                <input id="memberNum" name="memberNum" type="hidden" value="0">
+                <input type="submit" id="submitButton" value="Vytvořit projekt">            
             </form>
         </div>
         {% else %}
@@ -28,5 +41,32 @@
         {% endif %}
 
     </body>
+    <script>
+        // counter of the input members
+        i = 0;
+
+        function addMemberInput() {
+            // create new input for member
+            var newProjectForm = document.getElementById("newProject");
+            var memberInput = document.createElement("input");
+            memberInput.type = "text";
+            memberInput.name = "member" + i;
+            memberInput.placeholder = "Login člena"
+            newProjectForm.appendChild(memberInput);
+
+            // move add member button down
+            addMemberButton = document.getElementById("addMemberButton");
+            addMemberButton.parentNode.appendChild(addMemberButton);
+
+            // move submit button down
+            submitButton = document.getElementById("submitButton");
+            submitButton.parentNode.appendChild(submitButton);
+            i++;
+
+            // increase member counter
+            document.getElementById("memberNum").value = String(i);
+
+        }
+    </script>
 </html>
 

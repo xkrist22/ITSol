@@ -48,8 +48,6 @@ def users(request):
         "privileges": request.session.get("privileges"),
         "users": User.objects.all().values(),
     }
-
-
     template = loader.get_template("users.html")
     return HttpResponse(template.render(context, request))
 
@@ -61,7 +59,7 @@ def removeUser(request, id):
     if user.privileges == "admin":
         return HttpResponseRedirect(reverse("home", args=("Nelze odstranit administrátora!",)))
     user.delete()
-    return HttpResponseRedirect(reverse("home", args=("Uživatel byl odebrán",)))
+    return HttpResponseRedirect(reverse("users"))
 
 
 def editUser(request, id):
@@ -101,7 +99,7 @@ def saveNewUser(request):
         privileges = request.POST["privileges"],
     )
     newUser.save()
-    return HttpResponseRedirect(reverse("home", args=("Uživatel byl přidán",)))
+    return HttpResponseRedirect(reverse("users"))
 
 
 def saveEditUser(request, id):
@@ -116,16 +114,18 @@ def saveEditUser(request, id):
     user.password = md5(request.POST["password"].encode()).hexdigest()
     user.privileges = request.POST["privileges"]
     user.save()
-    return HttpResponseRedirect(reverse("home", args=("Změny uživatele byly uloženy",)))
+    return HttpResponseRedirect(reverse("users"))
 
 
 def createProject(request):
-    if not (request.session.get("privileges") == "admin" or request.session.get("privileges") == "project-manager"):
+    if request.session.get("privileges") != "admin" and request.session.get("privileges") != "project-manager":
         return HttpResponseRedirect(reverse("home", args=("Není možné vytvořit nový projekt, nemáte dostatečná oprávnění",)))
     project_managers = User.objects.filter(Q(privileges="admin") | Q(privileges="project-manager")).values()
+    risk_managers = User.objects.filter(Q(privileges="admin") | Q(privileges="project-manager") | Q(privileges="risk-manager")).values()
     context = {
         "privileges": request.session.get("privileges"),
-        "project_managers": project_managers
+        "project_managers": project_managers,
+        "risk_managers": risk_managers,
     }
     template = loader.get_template("createProject.html")
     return HttpResponse(template.render(context, request))
@@ -138,29 +138,164 @@ def saveNewProject(request):
         name = request.POST["name"],
         describtion = request.POST["describtion"],
         foreignKeyManager = User.objects.get(id=request.POST["foreignKeyManager"]),   
+        foreignKeyManagerRisk = User.objects.get(id=request.POST["foreignKeyManagerRisk"]),   
     )
     newProject.save()
     newProject.members.add(User.objects.get(id=request.POST["foreignKeyManager"]))
+
+    for i in range(int(request.POST["memberNum"])):
+        memberLogin = request.POST["member{}".format(i)]
+        try:
+            newProject.members.add(User.objects.get(userLogin=memberLogin))
+        except Exception:
+            # if user is not found
+            continue
+
     newProject.save()
-    return HttpResponseRedirect(reverse("home", args=("Projekt byl vytvořen",)))
+    return HttpResponseRedirect(reverse("projects"))
 
 
 def projects(request):
-    projects = Project.objects.filter(foreignKeyManager=request.session["id"])
-    project_manager = User.objects.get(id=request.session["id"])
+    projects = Project.objects.filter(Q(foreignKeyManager=request.session["id"]) | Q(members=request.session["id"])).distinct()
     context = {
         "privileges": request.session.get("privileges"),
         "projects": projects,
-        "project_manager": project_manager
     }
     template = loader.get_template("projects.html")
     return HttpResponse(template.render(context, request))
-    
+
+
+def removeProject(request, id):
+    project = Project.objects.get(id=id)
+    if project.foreignKeyManager != User.objects.get(id=request.session["id"]) and request.session["privileges"] != "admin":
+        return HttpResponseRedirect(reverse("home", args=("Projekt nebyl odstraněn, nemáte dostatečná oprávnění",)))
+    project.delete()
+    return HttpResponseRedirect(reverse("projects"))
+
 
 def projectDetail(request, id):
-    # TODO
     template = loader.get_template("projectDetail.html")
+    
     context = {
         "privileges": request.session.get("privileges"),
+        "users": Project.objects.get(id=id).members.all(),
+        "phases": Phase.objects.filter(foreignKeyProject=id),
+        "projectId": id,
+        "project": Project.objects.get(id=id),
+        "canEditProject": Project.objects.get(id=id).foreignKeyManager == User.objects.get(id=request.session["id"])
+    }
+    return HttpResponse(template.render(context, request))
+
+
+def removeUserFromProject(request, idUser, idProject):
+    if request.session["privileges"] != "admin" and request.session["privileges"] != "project-manager":
+        return HttpResponseRedirect(reverse("home", args=("Uživatel nebyl odebrán z projektu, nemáte dostatečná oprávnění",)))
+    user = User.objects.get(id=idUser)
+    Project.objects.get(id=idProject).members.remove(user)
+    return HttpResponseRedirect(reverse("projectDetail", args=(idProject,)))
+
+
+def addUserToProject(request, projectId):
+    project = Project.objects.get(id=projectId)
+    if project.foreignKeyManager != User.objects.get(id=request.session["id"]) and request.session["privileges"] != "admin":
+        return HttpResponseRedirect(reverse("home", args=("Uživatel nebyl přidán do projektu, nemáte dostatečná oprávnění",)))
+    project.members.add(User.objects.get(userLogin=request.POST["login"]))
+    return HttpResponseRedirect(reverse("projectDetail", args=(projectId,)))
+
+
+def addPhase(request, projectId):
+    template = loader.get_template("addPhase.html")
+    context = {
+        "privileges": request.session.get("privileges"),
+        "canEditProject": Project.objects.get(id=projectId).foreignKeyManager == User.objects.get(id=request.session["id"]),
+        "projectId": projectId
+    }
+    return HttpResponse(template.render(context, request))
+
+
+def saveNewPhase(request, projectId):
+    project = Project.objects.get(id=projectId)
+    if project.foreignKeyManager != User.objects.get(id=request.session["id"]) and request.session["privileges"] != "admin":
+        return HttpResponseRedirect(reverse("home", args=("Fáze nebyla přidána do projektu, nemáte dostatečná oprávnění",)))
+    phase = Phase(
+        name = request.POST["name"],
+        describtion = request.POST["describtion"],
+        dateFrom = request.POST["dateFrom"],
+        dateTo = request.POST["dateTo"],
+        foreignKeyProject = project,
+    )
+    phase.save()
+    return HttpResponseRedirect(reverse("projectDetail", args=(projectId,)))
+
+
+def removePhase(request, phaseId, projectId):
+    project = Project.objects.get(id=projectId)
+    phase = Phase.objects.get(id=phaseId)
+    if project.foreignKeyManager != User.objects.get(id=request.session["id"]) and request.session["privileges"] != "admin":
+        return HttpResponseRedirect(reverse("home", args=("Fáze nebyla odstraněna z projektu, nemáte dostatečná oprávnění",)))
+    phase.delete()
+    return HttpResponseRedirect(reverse("projectDetail", args=(projectId,)))
+
+
+def editPhase(request, phaseId, projectId):
+    template = loader.get_template("editPhase.html")
+    context = {
+        "privileges": request.session.get("privileges"),
+        "canEditProject": Project.objects.get(id=projectId).foreignKeyManager == User.objects.get(id=request.session["id"]),
+        "projectId": projectId,
+        "phaseId": phaseId,
+        "phase": Phase.objects.get(id=phaseId),
+    }
+    return HttpResponse(template.render(context, request))
+
+
+def saveEditPhase(request, phaseId, projectId):
+    project = Project.objects.get(id=projectId)
+    phase = Phase.objects.get(id=phaseId)
+    if project.foreignKeyManager != User.objects.get(id=request.session["id"]) and request.session["privileges"] != "admin":
+        return HttpResponseRedirect(reverse("home", args=("Fáze nebyla odstraněna z projektu, nemáte dostatečná oprávnění",)))
+    phase.name = request.POST["name"]
+    phase.describtion = request.POST["describtion"]
+    phase.dateFrom = request.POST["dateFrom"]
+    phase.dateTo = request.POST["dateTo"]
+    phase.save()
+    return HttpResponseRedirect(reverse("projectDetail", args=(projectId,)))
+
+
+def addUserToPhase(request, userId, projectId):
+    project = Project.objects.get(id=projectId)
+    template = loader.get_template("addUserToPhase.html")
+    context = {
+        "privileges": request.session.get("privileges"),
+        "canEditProject": Project.objects.get(id=projectId).foreignKeyManager == User.objects.get(id=request.session["id"]),
+        "projectId": projectId,
+        "phases": Phase.objects.filter(foreignKeyProject=project),
+        "user": User.objects.get(id=userId),
+    }
+    return HttpResponse(template.render(context, request))
+
+
+def saveUserToPhase(request, projectId):
+    project = Project.objects.get(id=projectId)
+    if project.foreignKeyManager != User.objects.get(id=request.session["id"]) and request.session["privileges"] != "admin":
+        return HttpResponseRedirect(reverse("home", args=("Fáze nebyla odstraněna z projektu, nemáte dostatečná oprávnění",)))
+    user = User.objects.get(userLogin=request.POST["userLogin"])
+    phase = Phase.objects.get(id=request.POST["phase"])
+    phase.participants.add(user)
+    phase.save()
+    return HttpResponseRedirect(reverse("projectDetail", args=(projectId,)))
+
+
+def showRisks(request, phaseId, projectId):
+    template = loader.get_template("showRisks.html")
+    phase = Phase.objects.get(id=phaseId)
+    context = {
+        "privileges": request.session.get("privileges"),
+        "canEditProject": Project.objects.get(id=projectId).foreignKeyManager == User.objects.get(id=request.session["id"]) or \
+            Project.objects.get(id=projectId).foreignKeyManagerRisk == User.objects.get(id=request.session["id"]),
+        "project": Project.objects.get(id=projectId),
+        "phase": phase,
+        "actualUserId": request.session["id"],
+        "risks": Risk.objects.filter(foreignKeyPhase=phase)
     }
     return HttpResponse(template.render(context, request))

@@ -4,7 +4,10 @@
         {% include 'head.html' %}
     </head>
     <body>
-        {% include 'nav.html' %}        
+        {% include 'nav.html' %}  
+        
+        <h2>Moje projekty</h2>
+
         <table>
             <tr>
                 <th>ID</th>
@@ -13,6 +16,8 @@
                 <th>Počet fází</th>
                 <th>Počet členů</th>
                 <th>Projektový manažer</th>
+                <th>Manažer rizik</th>
+                <th></th>
                 <th></th>
             </tr>
             {% for x in projects %}
@@ -21,9 +26,11 @@
                 <td>{{ x.name }}</td>
                 <td>{{ x.describtion }}</td>
                 <td>TODO počet fází</td>
-                <td>TODO počet členů</td>
-                <td>{{ project_manager.firstName }} {{project_manager.lastName}}</td>
+                <td>{{ x.members.all.count }}</td>
+                <td>{{x.foreignKeyManager.firstName}} {{x.foreignKeyManager.lastName}}</td>
+                <td>{{x.foreignKeyManagerRisk.firstName}} {{x.foreignKeyManagerRisk.lastName}}</td>
                 <td class="center"><a href="projectDetail/{{ x.id }}">🔎</a></td>
+                <td class="center"><a href="removeProject/{{ x.id }}">🗑️</a></td>
             </tr>
             {% endfor %}
         </table>

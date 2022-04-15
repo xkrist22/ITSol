@@ -7,6 +7,9 @@
         {% include 'nav.html' %}
 
         {% if privileges == "admin" %}
+
+        <h2>Přidat uživatele</h2>
+
         <div class="center">
             <form action="saveNewUser/" method="post">
                 {% csrf_token %}

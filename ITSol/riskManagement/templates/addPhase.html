@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {% include 'head.html' %}
+    </head>
+    <body>
+        {% include 'nav.html' %}
+
+        {% if privileges == "admin" or canEditProject %}
+
+        <h2>Přidat fázi</h2>
+
+        <div class="center">
+            <form action="saveNewPhase/{{ projectId }}" method="post">
+                {% csrf_token %}
+                <input type="text" name="name" placeholder="Název">
+                <br />
+                <textarea name="describtion" placeholder="Popis fáze"></textarea>
+                <input type="text" onfocus="this.type='date'" name="dateFrom" placeholder="Datum od">
+                <input type="text" onfocus="this.type='date'" name="dateTo" placeholder="Datum do">
+                <input type="submit" value="Přidat fázi">            
+            </form>
+        </div>
+        {% else %}
+            Nemáte dostatečné oprávnění pro zobrazení modulu
+        {% endif %}
+
+    </body>
+</html>
+

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {% include 'head.html' %}
+    </head>
+    <body>
+        {% include 'nav.html' %}
+
+        {% if privileges == "admin" or canEditProject %}
+
+        <h2>Přiřadit fázi uživateli {{user.firstName}} {{ user.lastName }}</h2>
+
+        <div class="center">
+            <form action="../saveUserToPhase/{{ projectId }}" method="post">
+                {% csrf_token %}
+                <input type="text" value="{{user.firstName}} {{ user.lastName }}" readonly>
+                <br />
+                <input type="text" name="userLogin" value="{{ user.userLogin }}" readonly>
+                <br />
+                <select name="phase">
+                    {% for x in phases %}
+                    <option value="{{x.id}}">{{ x.name }}</option>
+                    {% endfor %}
+                </select>
+                <br />
+                <input type="submit" value="Přiřadit uživatele k fázi">            
+            </form>
+        </div>
+        {% else %}
+            Nemáte dostatečné oprávnění pro zobrazení modulu
+        {% endif %}
+
+    </body>
+</html>
+

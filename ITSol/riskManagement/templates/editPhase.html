@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {% include 'head.html' %}
+    </head>
+    <body>
+        {% include 'nav.html' %}
+
+        {% if privileges == "admin" or canEditProject %}
+
+        <h2>Editace fáze {{ phase.name }}</h2>
+
+        <div class="center">
+            <form action="../saveEditPhase/{{ phaseId }}/{{ projectId }}" method="post">
+                {% csrf_token %}
+                <input type="text" name="name" placeholder="Název" value="{{phase.name}}">
+                <br />
+                <textarea name="describtion" placeholder="Popis projektu">{{phase.describtion}}</textarea>
+                <input type="text" onfocus="this.type='date'" name="dateFrom" value="{{phase.dateFrom}}">
+                <input type="text" onfocus="this.type='date'" name="dateTo" value="{{phase.dateTo}}">
+                <input type="submit" value="Uložit změny">            
+            </form>
+        </div>
+        {% else %}
+            Nemáte dostatečné oprávnění pro zobrazení modulu
+        {% endif %}
+
+    </body>
+</html>
+

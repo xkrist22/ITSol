@@ -1,6 +1,7 @@
 :root {
     --light: #bbadff;
     --dark: #304C89;
+    --darker: #142039;
     --warm: #DAB6FC;
     --normal: #8E94F2;
     --alarm: #BF4E30;
@@ -34,18 +35,20 @@ nav a, input[type="submit"] {
     text-decoration: none;
     background-color: var(--warm);
     padding: 10px;
-    color: var(--dark);
+    color: var(--darker);
     transition: color, background-color 0.3s;
     cursor: pointer;
+    margin-bottom: 30px;
 }
 
 a.button {
     text-align: left;
     margin-top: 20px;
     margin-left: 2%;
+    margin-bottom: 30px;
     background-color: var(--warm);
     padding: 10px;
-    color: var(--dark); 
+    color: var(--darker); 
     text-decoration: none;   
     transition: color, background-color 0.3s;
     border-radius: 10px;
@@ -55,6 +58,7 @@ nav a:hover, input[type="submit"]:hover {
     background-color: var(--alarm);
     color: var(--warm);
     transition: color, background-color 0.3s;
+    cursor: pointer;
 }
 
 a.button:hover {
@@ -66,6 +70,12 @@ a.button:hover {
 h1 {
     text-align: center;
     font-size: 30px;
+}
+
+h2 {
+    margin-left: 2%;
+    font-size: 20px;
+    color: var(--darker);
 }
 
 form {

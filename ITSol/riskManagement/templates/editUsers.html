@@ -7,6 +7,9 @@
         {% include 'nav.html' %}
 
         {% if privileges == "admin" %}
+
+        <h2>Editovat uživatele {{ user.firstName }} {{ user.lastName }}</h2>
+
         <div class="center">
             <form action="saveEditUser/{{ id }}" method="post">
                 {% csrf_token %}
