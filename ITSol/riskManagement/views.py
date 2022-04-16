@@ -1,9 +1,7 @@
-from multiprocessing import context
-from re import template
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.urls import reverse
-from .models import User, RiskType, Risk, Project, Phase
+from .models import User, Risk, Project, Phase
 from django.db.models import Q
 from hashlib import md5
 
@@ -285,17 +283,64 @@ def saveUserToPhase(request, projectId):
     phase.save()
     return HttpResponseRedirect(reverse("projectDetail", args=(projectId,)))
 
+############ Project phase related functions
 
-def showRisks(request, phaseId, projectId):
-    template = loader.get_template("showRisks.html")
+def phaseDetail(request, projectId, phaseId):
+    template = loader.get_template("phaseDetail.html")
     phase = Phase.objects.get(id=phaseId)
+    current_user_id = request.session["id"]
     context = {
         "privileges": request.session.get("privileges"),
-        "canEditProject": Project.objects.get(id=projectId).foreignKeyManager == User.objects.get(id=request.session["id"]) or \
-            Project.objects.get(id=projectId).foreignKeyManagerRisk == User.objects.get(id=request.session["id"]),
+        "can_edit_project": Project.objects.get(id=projectId).foreignKeyManager == User.objects.get(id=current_user_id) or \
+            Project.objects.get(id=projectId).foreignKeyManagerRisk == User.objects.get(id=current_user_id),
         "project": Project.objects.get(id=projectId),
         "phase": phase,
-        "actualUserId": request.session["id"],
-        "risks": Risk.objects.filter(foreignKeyPhase=phase)
+        "current_user_id": current_user_id,
+        "risks": Risk.objects.filter(foreignKeyPhase=phase.id)
     }
     return HttpResponse(template.render(context, request))
+
+def addRisk(request, projectId, phaseId):
+    template = loader.get_template("addRisk.html")
+    context = {
+        "can_edit_phase": True,
+        "projectId": projectId,
+        "phaseId": phaseId
+    }
+    return HttpResponse(template.render(context, request))
+
+def saveNewRisk(request, projectId, phaseId):
+    data = request.POST
+    risk = Risk(
+        name = data["name"],
+        description = data["description"],
+        category = data["category"],
+        threat = data["threat"],
+        triggers = data["triggers"],
+        reactions = data["reactions"],
+        creator = User.objects.get(id=request.session["id"]),
+        probability = data["probability"],
+        impact = data["impact"],
+        state = data["state"],
+        datetime_created = data["datetime_created"],
+        foreignKeyPhase = Phase.objects.get(id=phaseId),
+        accepted = False
+    )
+    risk.save()
+    return HttpResponseRedirect(f"/riskManagement/projects/projectDetail/phaseDetail/{projectId}/{phaseId}")
+
+# TODO
+def removeRisk(request, projectId, phaseId):
+    pass
+
+# TODO
+def approveRisk(request, projectId, phaseId):
+    return phaseDetail(request, projectId, phaseId)
+
+# TODO
+def rejectRisk(request, projectId, phaseId):
+    return phaseDetail(request, projectId, phaseId)
+
+# TODO
+def riskDetail(request, projectId, phaseId):
+    pass

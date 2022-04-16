@@ -27,6 +27,13 @@ urlpatterns = [
     path('projects/projectDetail/editPhase/saveEditPhase/<int:phaseId>/<int:projectId>', views.saveEditPhase, name='saveEditPhase'),
     path('projects/projectDetail/addUserToPhase/<int:userId>/<int:projectId>', views.addUserToPhase, name='addUserToPhase'),
     path('projects/projectDetail/addUserToPhase/saveUserToPhase/<int:projectId>', views.saveUserToPhase, name='saveUserToPhase'),
-    path('projects/projectDetail/showRisks/<int:phaseId>/<int:projectId>', views.showRisks, name='showRisks'),
+
+    path('projects/projectDetail/phaseDetail/<int:projectId>/<int:phaseId>', views.phaseDetail, name='phaseDetail'),
+    path('projects/projectDetail/phaseDetail/<int:projectId>/<int:phaseId>/addRisk', views.addRisk, name='addRisk'),
+    path('projects/projectDetail/phaseDetail/<int:projectId>/<int:phaseId>/saveNewRisk', views.saveNewRisk, name='saveNewRisk'),
+    path('projects/projectDetail/phaseDetail/<int:projectId>/<int:phaseId>/removeRisk', views.removeRisk, name='removeRisk'),
+    path('projects/projectDetail/phaseDetail/<int:projectId>/<int:phaseId>/approveRisk', views.approveRisk, name='approveRisk'),
+    path('projects/projectDetail/phaseDetail/<int:projectId>/<int:phaseId>/approveRisk', views.rejectRisk, name='rejectRisk'),
+    path('projects/projectDetail/phaseDetail/<int:projectId>/<int:phaseId>/riskDetail', views.riskDetail, name='riskDetail')
 
 ]

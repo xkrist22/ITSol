@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {% include 'head.html' %}
+    </head>
+    <body>
+        {% include 'nav.html' %}
+        <h2>Registr rizik pro projekt {{ project.name }}, fáze {{ phase.name }}</h2>
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Date</th>
+                <th>Probability</th>
+                <th>State</th>
+                <th>Accepted</th>
+                <!-- Risk approval/rejection buttons -->
+                {% if privileges == "risk-manager" or can_edit_project %}
+                    <th></th>
+                    <th></th>
+                {% endif %}
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+
+            {% for x in risks %}
+                <tr>
+                    <td>{{x.id}}</td>
+                    <td>{{x.name}}</td>
+                    <td>{{x.datetime_created}}</td>
+                    <td>{{x.probability}}</td>
+                    <td>{{x.state}}</td>
+                    <td>{{x.accepted}}</td>
+                    <!-- Risk approval/rejection buttons -->
+                    {% if privileges == "risk-manager" or can_edit_project %}
+                        <td class="center">
+                            <a href="/riskManagement/projects/projectDetail/phaseDetail/{{ project.id }}/{{ phase.id }}/approveRisk">
+                                ✔️
+                            </a>
+                        </td>
+                        <td class="center">
+                            <a href="/riskManagement/projects/projectDetail/phaseDetail/{{ project.id }}/{{ phase.id }}/rejectRisk">
+                                ❌
+                            </a>
+                        </td>
+                    {% endif %}
+                    <!-- TODO -->
+                    <td class="center">
+                        <a href="">
+                            ✏️ edit risk
+                        </a>
+                    </td>
+                    <td class="center">
+                        <a href="/riskManagement/projects/projectDetail/phaseDetail/{{ project.id }}/{{ phase.id }}/removeRisk">
+                            🗑️ remove risk
+                        </a>
+                    </td>
+                    <td class="center">
+                        <a href="/riskManagement/projects/projectDetail/phaseDetail/{{ project.id }}/{{ phase.id }}/riskDetail">
+                            🔎 
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+
+        <a class="button" href="/riskManagement/projects/projectDetail/phaseDetail/{{ project.id }}/{{ phase.id }}/addRisk">Přidat riziko</a>
+    </body>
+</html>
+

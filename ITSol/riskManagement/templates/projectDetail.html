@@ -24,7 +24,7 @@
                 <td>{{ x.privileges }}</td>
                 {% if privileges == "admin" or canEditProject %}
                 <td class="center"><a href="removeUserFromProject/{{ x.id }}/{{ projectId }}">❌</a></td>
-                <td class="center"><a href="addUserToPhase/{{ x.id }}/{{ projectId }}">➕</a></td>
+                <td class="center" style="width: 150px;"><a href="addUserToPhase/{{ x.id }}/{{ projectId }}">➕ (přidat fázy)</a></td>
                 {% endif %}
             </tr>
         {% endfor %}
@@ -61,7 +61,7 @@
                 <td>{{ x.describtion }}</td> 
                 <td>TODO</td>
                 <td>{{ x.participants.all.count }}</td>
-                <td class="center"><a href="showRisks/{{ x.id }}/{{ projectId }}">🔎</a></td>
+                <td class="center"><a href="phaseDetail/{{ projectId }}/{{ x.id }}">🔎</a></td>
                 {% if privileges == "admin" or canEditProject %}
                 <td class="center"><a href="editPhase/{{ x.id }}/{{ projectId }}">✏️</a></td>
                 <td class="center"><a href="removePhase/{{ x.id }}/{{projectId }}">🗑️</a></td>

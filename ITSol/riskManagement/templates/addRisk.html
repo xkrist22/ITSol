@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {% include 'head.html' %}
+    </head>
+    <body>
+        {% include 'nav.html' %}
+
+        {% if can_edit_phase %}
+
+            <h2>Přidej riziko</h2>
+            <div class="center">
+                <form action="/riskManagement/projects/projectDetail/phaseDetail/{{ projectId }}/{{ phaseId }}/saveNewRisk" method="post" id="add-risk-form">
+
+                    {% csrf_token %}
+
+                    <input type="text" name="name" placeholder="Název" />
+
+                    <textarea name="description" placeholder="Popis rizika"></textarea>
+
+                    <select name="category" form="add-risk-form">
+                        <option>Category 1</option>
+                        <option>Category 2</option>
+                        <option>Category 3</option>
+                        <option>Category 4</option>
+                    </select>
+
+                    <textarea name="threat" placeholder="Hrozba"></textarea>
+
+                    <input type="text" name="triggers" placeholder="Spouštěče" />
+
+                    <textarea name="reactions" placeholder="reactions"></textarea>
+
+                    <input type="number" name="probability" placeholder="Pravdepodobnost" value="0"/>
+
+                    <select name="impact" form="add-risk-form">
+                        <option>Small</option>
+                        <option>Medium</option>
+                        <option>Big</option>
+                    </select>
+
+                    <select name="state" form="add-risk-form">
+                        <option>Nové</option>
+                        <option>Uzavřené</option>
+                        <option>Přihodilo se</option>
+                    </select>
+
+                    <input type="text" onfocus="this.type='date'" name="datetime_created" placeholder="Datum vzniku" />
+                  
+                    <input type="submit" value="Přidat riziko">            
+                </form>
+            </div>
+
+        {% else %}
+            Nemáte dostatečné oprávnění pro zobrazení modulu
+        {% endif %}
+
+    </body>
+</html>
+
