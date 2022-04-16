@@ -32,8 +32,7 @@ urlpatterns = [
     path('projects/projectDetail/phaseDetail/<int:projectId>/<int:phaseId>/addRisk', views.addRisk, name='addRisk'),
     path('projects/projectDetail/phaseDetail/<int:projectId>/<int:phaseId>/saveNewRisk', views.saveNewRisk, name='saveNewRisk'),
     path('projects/projectDetail/phaseDetail/<int:projectId>/<int:phaseId>/removeRisk', views.removeRisk, name='removeRisk'),
-    path('projects/projectDetail/phaseDetail/<int:projectId>/<int:phaseId>/approveRisk', views.approveRisk, name='approveRisk'),
-    path('projects/projectDetail/phaseDetail/<int:projectId>/<int:phaseId>/approveRisk', views.rejectRisk, name='rejectRisk'),
+    path('projects/projectDetail/phaseDetail/<int:projectId>/<int:phaseId>/<int:riskId>/checkRisk', views.checkRisk, name='checkRisk'),
     path('projects/projectDetail/phaseDetail/<int:projectId>/<int:phaseId>/riskDetail', views.riskDetail, name='riskDetail')
 
 ]

@@ -283,7 +283,7 @@ def saveUserToPhase(request, projectId):
     phase.save()
     return HttpResponseRedirect(reverse("projectDetail", args=(projectId,)))
 
-############ Project phase related functions
+############ Project phase and risks related functions
 
 def phaseDetail(request, projectId, phaseId):
     template = loader.get_template("phaseDetail.html")
@@ -329,16 +329,15 @@ def saveNewRisk(request, projectId, phaseId):
     risk.save()
     return HttpResponseRedirect(f"/riskManagement/projects/projectDetail/phaseDetail/{projectId}/{phaseId}")
 
-# TODO
+# TODO - remove risk temporarily or just set is_removed attr to true?
 def removeRisk(request, projectId, phaseId):
     pass
 
-# TODO
-def approveRisk(request, projectId, phaseId):
-    return phaseDetail(request, projectId, phaseId)
-
-# TODO
-def rejectRisk(request, projectId, phaseId):
+def checkRisk(request, projectId, phaseId, riskId):
+    accept = bool(request.GET.get("accept", False))
+    risk = Risk.objects.get(id=riskId)
+    risk.accepted = accept
+    risk.save()
     return phaseDetail(request, projectId, phaseId)
 
 # TODO

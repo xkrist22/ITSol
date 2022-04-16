@@ -33,29 +33,31 @@
                     <td>{{x.state}}</td>
                     <td>{{x.accepted}}</td>
                     <!-- Risk approval/rejection buttons -->
-                    {% if privileges == "risk-manager" or can_edit_project %}
+                    {% if privileges == "risk-manager" %}
                         <td class="center">
-                            <a href="/riskManagement/projects/projectDetail/phaseDetail/{{ project.id }}/{{ phase.id }}/approveRisk">
+                            <a href="/riskManagement/projects/projectDetail/phaseDetail/{{ project.id }}/{{ phase.id }}/{{ x.id }}/checkRisk?accept=True">
                                 ✔️
                             </a>
                         </td>
                         <td class="center">
-                            <a href="/riskManagement/projects/projectDetail/phaseDetail/{{ project.id }}/{{ phase.id }}/rejectRisk">
+                            <a href="/riskManagement/projects/projectDetail/phaseDetail/{{ project.id }}/{{ phase.id }}/{{ x.id }}/checkRisk">
                                 ❌
                             </a>
                         </td>
                     {% endif %}
                     <!-- TODO -->
-                    <td class="center">
-                        <a href="">
-                            ✏️ edit risk
-                        </a>
-                    </td>
-                    <td class="center">
-                        <a href="/riskManagement/projects/projectDetail/phaseDetail/{{ project.id }}/{{ phase.id }}/removeRisk">
-                            🗑️ remove risk
-                        </a>
-                    </td>
+                    {% if privileges == "risk-manager" or can_edit_project %}
+                        <td class="center">
+                            <a href="">
+                                ✏️ edit risk
+                            </a>
+                        </td>
+                        <td class="center">
+                            <a href="/riskManagement/projects/projectDetail/phaseDetail/{{ project.id }}/{{ phase.id }}/removeRisk">
+                                🗑️ remove risk
+                            </a>
+                        </td>
+                    {% endif %}
                     <td class="center">
                         <a href="/riskManagement/projects/projectDetail/phaseDetail/{{ project.id }}/{{ phase.id }}/riskDetail">
                             🔎 
