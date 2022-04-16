@@ -6,7 +6,7 @@
     <body>
         {% include 'nav.html' %}
 
-        {% if privileges == "admin" or privileges == "project-manager" %}
+        {% if privileges == "admin" %}
 
         <h2>Vytvořit nový projekt</h2>
 
@@ -36,6 +36,7 @@
                 <input type="submit" id="submitButton" value="Vytvořit projekt">            
             </form>
         </div>
+
         {% else %}
             Nemáte dostatečné oprávnění pro zobrazení modulu
         {% endif %}
