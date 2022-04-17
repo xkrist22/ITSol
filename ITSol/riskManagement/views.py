@@ -184,6 +184,11 @@ def projectDetail(request, id):
     }
     return HttpResponse(template.render(context, request))
 
+def changeProjectState(request, projectId):
+    project = Project.objects.get(id=projectId)
+    project.state = request.POST["state"]
+    project.save()
+    return HttpResponseRedirect(reverse("projectDetail", args=(projectId,)))
 
 def removeUserFromProject(request, idUser, idProject):
     if request.session["privileges"] != "admin" and request.session["privileges"] != "project-manager":

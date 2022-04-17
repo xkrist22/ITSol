@@ -6,6 +6,27 @@
     <body>
         {% include 'nav.html' %}        
 
+        <!-- Admin and project manager can change state of the project -->
+        {% if privileges == "admin" or privileges == "project-manager" %}
+            <h2>Stav projektu: {{ project.state }}</h2>
+            <form action="changeProjectState/{{ projectId }}" method="post" style="margin-left: 20px;">
+                {% csrf_token %}
+                <div style="display: flex;">
+                    <div>
+                        <select name="state">
+                            <option>New</option>
+                            <option>In progress</option>
+                            <option>Closed</option>
+                            <option>Canceled</option>
+                        </select>
+                    </div>
+                    <div>
+                        <input type="submit" value="Zmenit stav">
+                    </div>
+                </div>
+            </form>
+        {% endif %}
+
         <h2>Uživatelé zapojení do projektu {{ project.name }}</h2>
         <table>
             <tr>
@@ -31,18 +52,17 @@
         </table>
 
         {% if privileges == "admin" or canEditProject %}
-        <h2>Přidat člena</h2>
-        <form action="addUserToProject/{{ projectId }}" method="post">
-            <div style="display: flex;">
+            <form action="addUserToProject/{{ projectId }}" method="post" style="margin-left: 20px;">
                 {% csrf_token %}
-                <div>
-                    <input type="text" name="login" placeholder="login">
+                <div style="display: flex;">
+                    <div>
+                        <input type="text" name="login" placeholder="login">
+                    </div>
+                    <div>
+                        <input type="submit" value="Přidat člena">
+                    </div>
                 </div>
-                <div>
-                    <input type="submit" value="Přidat člena">
-                </div>
-            </div>
-        </form>
+            </form>
         {% endif %}
         
         <h2>Fáze projektu {{ project.name }}</h2>

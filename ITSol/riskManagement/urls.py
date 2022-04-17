@@ -20,6 +20,7 @@ urlpatterns = [
     path('projects/projectDetail/<int:id>', views.projectDetail, name='projectDetail'),
     path('projects/projectDetail/removeUserFromProject/<int:idUser>/<int:idProject>', views.removeUserFromProject, name='removeUserFromProject'),
     path('projects/projectDetail/addUserToProject/<int:projectId>', views.addUserToProject, name='addUserToProject'),
+    path('projects/projectDetail/changeProjectState/<int:projectId>', views.changeProjectState, name='changeProjectState'),
     path('projects/projectDetail/addPhase/<int:projectId>', views.addPhase, name='addPhase'),
     path('projects/projectDetail/addPhase/saveNewPhase/<int:projectId>', views.saveNewPhase, name='saveNewPhase'),
     path('projects/projectDetail/removePhase/<int:phaseId>/<int:projectId>', views.removePhase, name='removePhase'),
