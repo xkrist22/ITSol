@@ -329,9 +329,11 @@ def saveNewRisk(request, projectId, phaseId):
     risk.save()
     return HttpResponseRedirect(f"/riskManagement/projects/projectDetail/phaseDetail/{projectId}/{phaseId}")
 
-# TODO - remove risk temporarily or just set is_removed attr to true?
-def removeRisk(request, projectId, phaseId):
-    pass
+def removeRisk(request, projectId, phaseId, riskId):
+    risk = Risk.objects.get(id=riskId)
+    risk.delete()
+    return phaseDetail(request, projectId, phaseId)
+
 
 def checkRisk(request, projectId, phaseId, riskId):
     accept = bool(request.GET.get("accept", False))
@@ -340,7 +342,6 @@ def checkRisk(request, projectId, phaseId, riskId):
     risk.save()
     return phaseDetail(request, projectId, phaseId)
 
-# TODO
 def riskDetail(request, riskId):
     template = loader.get_template("riskDetail.html")
     risk = Risk.objects.get(id=riskId)

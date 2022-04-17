@@ -31,7 +31,7 @@ urlpatterns = [
     path('projects/projectDetail/phaseDetail/<int:projectId>/<int:phaseId>', views.phaseDetail, name='phaseDetail'),
     path('projects/projectDetail/phaseDetail/<int:projectId>/<int:phaseId>/addRisk', views.addRisk, name='addRisk'),
     path('projects/projectDetail/phaseDetail/<int:projectId>/<int:phaseId>/saveNewRisk', views.saveNewRisk, name='saveNewRisk'),
-    path('projects/projectDetail/phaseDetail/<int:projectId>/<int:phaseId>/removeRisk', views.removeRisk, name='removeRisk'),
+    path('projects/projectDetail/phaseDetail/<int:projectId>/<int:phaseId>/<int:riskId>/removeRisk', views.removeRisk, name='removeRisk'),
     path('projects/projectDetail/phaseDetail/<int:projectId>/<int:phaseId>/<int:riskId>/checkRisk', views.checkRisk, name='checkRisk'),
     path('projects/projectDetail/phaseDetail/<int:riskId>/riskDetail', views.riskDetail, name='riskDetail')
 
