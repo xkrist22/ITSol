@@ -15,7 +15,7 @@
                 {% csrf_token %}
                 <input type="text" name="name" placeholder="Název" value="{{phase.name}}">
                 <br />
-                <textarea name="describtion" placeholder="Popis projektu">{{phase.describtion}}</textarea>
+                <textarea name="description" placeholder="Popis projektu">{{phase.description}}</textarea>
                 <input type="text" onfocus="this.type='date'" name="dateFrom" value="{{phase.dateFrom}}">
                 <input type="text" onfocus="this.type='date'" name="dateTo" value="{{phase.dateTo}}">
                 <input type="submit" value="Uložit změny">            

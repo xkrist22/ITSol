@@ -134,7 +134,7 @@ def saveNewProject(request):
         return HttpResponseRedirect(reverse("home", args=("Projekt nebyl vytvořen, nemáte dostatečná oprávnění",)))
     newProject = Project(
         name = request.POST["name"],
-        describtion = request.POST["describtion"],
+        description = request.POST["description"],
         foreignKeyManager = User.objects.get(id=request.POST["foreignKeyManager"]),   
         foreignKeyManagerRisk = User.objects.get(id=request.POST["foreignKeyManagerRisk"]),   
     )
@@ -217,7 +217,7 @@ def saveNewPhase(request, projectId):
         return HttpResponseRedirect(reverse("home", args=("Fáze nebyla přidána do projektu, nemáte dostatečná oprávnění",)))
     phase = Phase(
         name = request.POST["name"],
-        describtion = request.POST["describtion"],
+        description = request.POST["description"],
         dateFrom = request.POST["dateFrom"],
         dateTo = request.POST["dateTo"],
         foreignKeyProject = project,
@@ -253,7 +253,7 @@ def saveEditPhase(request, phaseId, projectId):
     if project.foreignKeyManager != User.objects.get(id=request.session["id"]) and request.session["privileges"] != "admin":
         return HttpResponseRedirect(reverse("home", args=("Fáze nebyla odstraněna z projektu, nemáte dostatečná oprávnění",)))
     phase.name = request.POST["name"]
-    phase.describtion = request.POST["describtion"]
+    phase.description = request.POST["description"]
     phase.dateFrom = request.POST["dateFrom"]
     phase.dateTo = request.POST["dateTo"]
     phase.save()
@@ -333,7 +333,6 @@ def removeRisk(request, projectId, phaseId, riskId):
     risk = Risk.objects.get(id=riskId)
     risk.delete()
     return phaseDetail(request, projectId, phaseId)
-
 
 def checkRisk(request, projectId, phaseId, riskId):
     accept = bool(request.GET.get("accept", False))

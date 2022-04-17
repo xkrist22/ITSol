@@ -13,26 +13,20 @@ class User(models.Model):
 
 class Project(models.Model):
     name = models.CharField(max_length=255)
-    describtion = models.CharField(max_length=255)
+    description = models.CharField(max_length=255)
     foreignKeyManager = models.ForeignKey(User, on_delete=models.PROTECT, related_name="projectManager")
     foreignKeyManagerRisk = models.ForeignKey(User, on_delete=models.PROTECT, related_name="riskManager")
     members = models.ManyToManyField(User, related_name="members")
+    state = models.CharField(max_length=255)
 
 
 class Phase(models.Model):
     name = models.CharField(max_length=255)
-    describtion = models.CharField(max_length=255) # TODO: rename THIS
+    description = models.CharField(max_length=255)
     participants = models.ManyToManyField(User, related_name="participants")
     dateFrom = models.DateField()
     dateTo = models.DateField()
     foreignKeyProject = models.ForeignKey(Project, on_delete=models.CASCADE)
-
-
-# TODO: remove this class?
-class RiskType(models.Model):
-    name = models.CharField(max_length=255)
-    describtion = models.CharField(max_length=255)
-    effects = models.CharField(max_length=255)
 
 
 class Risk(models.Model):

@@ -34,5 +34,4 @@ urlpatterns = [
     path('projects/projectDetail/phaseDetail/<int:projectId>/<int:phaseId>/<int:riskId>/removeRisk', views.removeRisk, name='removeRisk'),
     path('projects/projectDetail/phaseDetail/<int:projectId>/<int:phaseId>/<int:riskId>/checkRisk', views.checkRisk, name='checkRisk'),
     path('projects/projectDetail/phaseDetail/<int:projectId>/<int:phaseId>/<int:riskId>/riskDetail', views.riskDetail, name='riskDetail')
-
 ]
