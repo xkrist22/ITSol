@@ -6,9 +6,10 @@
     <body>
         {% include 'nav.html' %}        
 
+        <h2>Stav projektu: {{ project.state }}</h2>
+
         <!-- Admin and project manager can change state of the project -->
-        {% if privileges == "admin" or privileges == "project-manager" %}
-            <h2>Stav projektu: {{ project.state }}</h2>
+        {% if is_authorized and is_editable %}
             <form action="changeProjectState/{{ projectId }}" method="post" style="margin-left: 20px;">
                 {% csrf_token %}
                 <div style="display: flex;">
@@ -28,30 +29,31 @@
         {% endif %}
 
         <h2>Uživatelé zapojení do projektu {{ project.name }}</h2>
+
         <table>
             <tr>
                 <th>ID</th>
                 <th>Jméno</th>
                 <th>Oprávnění</th>
-                {% if privileges == "admin" or canEditProject %}
-                <th></th>
-                <th></th>
+                {% if is_authorized and is_editable %}
+                    <th></th>
+                    <th></th>
                 {% endif %}
             </tr>
-        {% for x in users %}
-            <tr>
-                <th>{{ x.id }}</th>
-                <td>{{ x.firstName }} {{ x.lastName }}</td>
-                <td>{{ x.privileges }}</td>
-                {% if privileges == "admin" or canEditProject %}
-                <td class="center"><a href="removeUserFromProject/{{ x.id }}/{{ projectId }}">❌</a></td>
-                <td class="center" style="width: 150px;"><a href="addUserToPhase/{{ x.id }}/{{ projectId }}">➕ (přidat fázy)</a></td>
-                {% endif %}
-            </tr>
-        {% endfor %}
+            {% for x in users %}
+                <tr>
+                    <th>{{ x.id }}</th>
+                    <td>{{ x.firstName }} {{ x.lastName }}</td>
+                    <td>{{ x.privileges }}</td>
+                    {% if is_authorized and is_editable %}
+                        <td class="center"><a href="removeUserFromProject/{{ x.id }}/{{ projectId }}">❌</a></td>
+                        <td class="center" style="width: 150px;"><a href="addUserToPhase/{{ x.id }}/{{ projectId }}">➕ (přidat fázy)</a></td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
         </table>
 
-        {% if privileges == "admin" or canEditProject %}
+        {% if is_authorized and is_editable %}
             <form action="addUserToProject/{{ projectId }}" method="post" style="margin-left: 20px;">
                 {% csrf_token %}
                 <div style="display: flex;">
@@ -74,29 +76,29 @@
                 <th>Počet rizik</th>
                 <th>Počet pracovníků</th>
                 <th></th>
-                {% if privileges == "admin" or canEditProject %}
-                <th></th>
-                <th></th>
+                {% if is_authorized and is_editable %}
+                    <th></th>
+                    <th></th>
                 {% endif %}
             </tr>
-        {% for x in phases %}
-            <tr>
-                <th>{{ x.id }}</th>
-                <td>{{ x.name }}</td>
-                <td>{{ x.description }}</td> 
-                <td>TODO</td>
-                <td>{{ x.participants.all.count }}</td>
-                <td class="center"><a href="phaseDetail/{{ projectId }}/{{ x.id }}">🔎</a></td>
-                {% if privileges == "admin" or canEditProject %}
-                <td class="center"><a href="editPhase/{{ x.id }}/{{ projectId }}">✏️</a></td>
-                <td class="center"><a href="removePhase/{{ x.id }}/{{projectId }}">🗑️</a></td>
-                {% endif %}
-            </tr>
-        {% endfor %}
+            {% for x in phases %}
+                <tr>
+                    <th>{{ x.id }}</th>
+                    <td>{{ x.name }}</td>
+                    <td>{{ x.description }}</td> 
+                    <td>TODO</td>
+                    <td>{{ x.participants.all.count }}</td>
+                    <td class="center"><a href="phaseDetail/{{ projectId }}/{{ x.id }}">🔎</a></td>
+                    {% if is_authorized and is_editable %}
+                        <td class="center"><a href="editPhase/{{ x.id }}/{{ projectId }}">✏️</a></td>
+                        <td class="center"><a href="removePhase/{{ x.id }}/{{projectId }}">🗑️</a></td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
         </table>
 
-        {% if privileges == "admin" or canEditProject %}
-        <a class="button" href="addPhase/{{projectId}}">Přidat fázi</a>
+        {% if is_authorized and is_editable %}
+            <a class="button" href="addPhase/{{projectId}}">Přidat fázi</a>
         {% endif %}
 
     </body>

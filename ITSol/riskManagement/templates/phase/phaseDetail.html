@@ -38,7 +38,7 @@
                     <td>{{x.state}}</td>
                     <td>{{x.accepted}}</td>
                     <!-- Risk approval/rejection buttons -->
-                    {% if privileges == "risk-manager" %}
+                    {% if privileges == "risk-manager" and is_editable %}
                         <td class="center">
                             <a href="/riskManagement/projects/projectDetail/phaseDetail/{{ project.id }}/{{ phase.id }}/{{ x.id }}/checkRisk?accept=True">
                                 ✔️
@@ -51,7 +51,7 @@
                         </td>
                     {% endif %}
                     <!-- TODO -->
-                    {% if privileges == "risk-manager" or can_edit_project %}
+                    {% if is_editable and can_edit_project  %}
                         <td class="center">
                             <a href="">
                                 ✏️ edit risk
@@ -72,7 +72,9 @@
             {% endfor %}
         </table>
 
-        <a class="button" href="/riskManagement/projects/projectDetail/phaseDetail/{{ project.id }}/{{ phase.id }}/addRisk">Přidat riziko</a>
+        {% if can_edit_project and is_editable %}
+            <a class="button" href="/riskManagement/projects/projectDetail/phaseDetail/{{ project.id }}/{{ phase.id }}/addRisk">Přidat riziko</a>
+        {% endif %}
     </body>
 </html>
 

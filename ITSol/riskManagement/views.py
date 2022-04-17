@@ -173,14 +173,16 @@ def removeProject(request, id):
 
 def projectDetail(request, id):
     template = loader.get_template("projectDetail.html")
-    
+    project = Project.objects.get(id=id)
+    is_authorized = Project.objects.get(id=id).foreignKeyManager == User.objects.get(id=request.session["id"]) or request.session.get("privileges") == "admin"
     context = {
         "privileges": request.session.get("privileges"),
         "users": Project.objects.get(id=id).members.all(),
         "phases": Phase.objects.filter(foreignKeyProject=id),
         "projectId": id,
-        "project": Project.objects.get(id=id),
-        "canEditProject": Project.objects.get(id=id).foreignKeyManager == User.objects.get(id=request.session["id"])
+        "project": project,
+        "is_user_authorized": is_authorized,
+        "is_editable": project.state != "Closed" and project.state != "Canceled"
     }
     return HttpResponse(template.render(context, request))
 
@@ -294,14 +296,16 @@ def phaseDetail(request, projectId, phaseId):
     template = loader.get_template("phaseDetail.html")
     phase = Phase.objects.get(id=phaseId)
     current_user_id = request.session["id"]
+    project = Project.objects.get(id=projectId)
     context = {
         "privileges": request.session.get("privileges"),
         "can_edit_project": Project.objects.get(id=projectId).foreignKeyManager == User.objects.get(id=current_user_id) or \
             Project.objects.get(id=projectId).foreignKeyManagerRisk == User.objects.get(id=current_user_id),
-        "project": Project.objects.get(id=projectId),
+        "project": project,
         "phase": phase,
         "current_user_id": current_user_id,
-        "risks": Risk.objects.filter(foreignKeyPhase=phase.id)
+        "risks": Risk.objects.filter(foreignKeyPhase=phase.id),
+        "is_editable": project.state != "Closed" and project.state != "Canceled"
     }
     return HttpResponse(template.render(context, request))
 
