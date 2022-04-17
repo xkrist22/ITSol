@@ -5,6 +5,11 @@
     </head>
     <body>
         {% include 'nav.html' %}
+
+        <a class="button" href="/riskManagement/projects/projectDetail/{{ project.id }}">
+            &#x2190; Spátky na projekt
+        </a>
+
         <h2>Registr rizik pro projekt {{ project.name }}, fáze {{ phase.name }}</h2>
         <table>
             <tr>
@@ -59,7 +64,7 @@
                         </td>
                     {% endif %}
                     <td class="center">
-                        <a href="/riskManagement/projects/projectDetail/phaseDetail/{{ x.id }}/riskDetail">
+                        <a href="/riskManagement/projects/projectDetail/phaseDetail/{{ project.id }}/{{ phase.id }}/{{ x.id }}/riskDetail">
                             🔎 
                         </a>
                     </td>
