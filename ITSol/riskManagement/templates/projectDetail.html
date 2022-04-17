@@ -33,10 +33,15 @@
         {% if privileges == "admin" or canEditProject %}
         <h2>Přidat člena</h2>
         <form action="addUserToProject/{{ projectId }}" method="post">
-            {% csrf_token %}
-            <input type="text" name="login" placeholder="login">
-            <br />
-            <input type="submit" value="Přidat člena">
+            <div style="display: flex;">
+                {% csrf_token %}
+                <div>
+                    <input type="text" name="login" placeholder="login">
+                </div>
+                <div>
+                    <input type="submit" value="Přidat člena">
+                </div>
+            </div>
         </form>
         {% endif %}
         

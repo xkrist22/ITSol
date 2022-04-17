@@ -345,8 +345,22 @@ def checkRisk(request, projectId, phaseId, riskId):
 def riskDetail(request, projectId, phaseId, riskId):
     template = loader.get_template("riskDetail.html")
     risk = Risk.objects.get(id=riskId)
+    creator = risk.creator
     context = {
-        "risk": risk.__dict__,
+        "risk": {
+            "name": risk.name,
+            "creator": creator.firstName + " " + creator.lastName,
+            "accepted": risk.accepted,
+            "description": risk.description,
+            "category": risk.category,
+            "threat": risk.threat,
+            "triggers": risk.triggers,
+            "reactions": risk.reactions,
+            "probability": risk.probability,
+            "impact": risk.impact,
+            "state": risk.state,
+            "datetime_created": risk.datetime_created
+        },
         "project_id": projectId,
         "phase_id": phaseId
     }
