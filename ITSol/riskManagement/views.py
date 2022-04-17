@@ -341,5 +341,8 @@ def checkRisk(request, projectId, phaseId, riskId):
     return phaseDetail(request, projectId, phaseId)
 
 # TODO
-def riskDetail(request, projectId, phaseId):
-    pass
+def riskDetail(request, riskId):
+    template = loader.get_template("riskDetail.html")
+    risk = Risk.objects.get(id=riskId)
+    context = { "risk": risk.__dict__ }
+    return HttpResponse(template.render(context, request))
