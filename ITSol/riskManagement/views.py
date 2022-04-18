@@ -293,11 +293,17 @@ def saveEditPhase(request, phaseId, projectId):
 
 
 def addUserToPhase(request, userId, projectId):
+
+    # Authorization
+    current_user_id = request.session["id"]
+    is_proj_manager = request.session.get("privileges") == "project-manager"
+    is_proj_manager_of_project = Project.objects.get(id=projectId).foreignKeyManager == User.objects.get(id=current_user_id)
+    is_authorized = is_proj_manager and is_proj_manager_of_project
+
     project = Project.objects.get(id=projectId)
     template = loader.get_template("addUserToPhase.html")
     context = {
-        "privileges": request.session.get("privileges"),
-        "canEditProject": Project.objects.get(id=projectId).foreignKeyManager == User.objects.get(id=request.session["id"]),
+        "is_authorized": is_authorized,
         "projectId": projectId,
         "phases": Phase.objects.filter(foreignKeyProject=project),
         "user": User.objects.get(id=userId),
@@ -339,15 +345,22 @@ def phaseDetail(request, projectId, phaseId):
     log_info(request, f"navigation to 'Phase detail' view from project {projectId}, phase {phaseId}")
     return HttpResponse(template.render(context, request))
 
+
 def addRisk(request, projectId, phaseId):
+
+    # Authorization
+    current_user_id = request.session["id"]
+    is_authorized = Phase.objects.filter(Q(id=phaseId) & Q(participants__id=current_user_id)).exists()
+
     template = loader.get_template("addRisk.html")
     context = {
-        "can_edit_phase": True,
-        "projectId": projectId,
-        "phaseId": phaseId
+        "is_authorized": is_authorized,
+        "project_id": projectId,
+        "phase_id": phaseId
     }
     log_info(request, f"navigation to 'Add risk' view for project {projectId}, phase {phaseId}")
     return HttpResponse(template.render(context, request))
+
 
 def saveNewRisk(request, projectId, phaseId):
     data = request.POST
@@ -382,7 +395,7 @@ def checkRisk(request, projectId, phaseId, riskId):
     risk.accepted = accept
     risk.save()
     action_name = "accept" if accept else "reject" 
-    log_info(request, f"{action_name} risk from project {projectId}, phase {phaseId}")
+    log_info(request, f"{action_name} risk from project {projectId}, phase {phaseId}, risk {riskId}")
     return phaseDetail(request, projectId, phaseId)
 
 def riskDetail(request, projectId, phaseId, riskId):

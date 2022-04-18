@@ -6,11 +6,11 @@
     <body>
         {% include 'nav.html' %}
 
-        {% if can_edit_phase %}
+        {% if is_authorized %}
 
             <h2>Přidej riziko</h2>
             <div class="center">
-                <form action="/riskManagement/projects/projectDetail/phaseDetail/{{ projectId }}/{{ phaseId }}/saveNewRisk" method="post" id="add-risk-form">
+                <form action="/riskManagement/projects/projectDetail/phaseDetail/{{ project_id }}/{{ phase_id }}/saveNewRisk" method="post" id="add-risk-form">
 
                     {% csrf_token %}
 
