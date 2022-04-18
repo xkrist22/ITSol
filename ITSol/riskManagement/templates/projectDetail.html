@@ -9,7 +9,7 @@
         <h2>Stav projektu: {{ project.state }}</h2>
 
         <!-- Admin and project manager can change state of the project -->
-        {% if is_authorized and is_editable %}
+        {% if is_user_authorized and is_editable %}
             <form action="changeProjectState/{{ projectId }}" method="post" style="margin-left: 20px;">
                 {% csrf_token %}
                 <div style="display: flex;">
@@ -35,7 +35,7 @@
                 <th>ID</th>
                 <th>Jméno</th>
                 <th>Oprávnění</th>
-                {% if is_authorized and is_editable %}
+                {% if is_user_authorized and is_editable %}
                     <th></th>
                     <th></th>
                 {% endif %}
@@ -45,7 +45,7 @@
                     <th>{{ x.id }}</th>
                     <td>{{ x.firstName }} {{ x.lastName }}</td>
                     <td>{{ x.privileges }}</td>
-                    {% if is_authorized and is_editable %}
+                    {% if is_user_authorized and is_editable %}
                         <td class="center"><a href="removeUserFromProject/{{ x.id }}/{{ projectId }}">❌</a></td>
                         <td class="center" style="width: 150px;"><a href="addUserToPhase/{{ x.id }}/{{ projectId }}">➕ (přidat fázy)</a></td>
                     {% endif %}
@@ -53,7 +53,7 @@
             {% endfor %}
         </table>
 
-        {% if is_authorized and is_editable %}
+        {% if is_user_authorized and is_editable %}
             <form action="addUserToProject/{{ projectId }}" method="post" style="margin-left: 20px;">
                 {% csrf_token %}
                 <div style="display: flex;">
@@ -76,7 +76,7 @@
                 <th>Počet rizik</th>
                 <th>Počet pracovníků</th>
                 <th></th>
-                {% if is_authorized and is_editable %}
+                {% if is_user_authorized and is_editable %}
                     <th></th>
                     <th></th>
                 {% endif %}
@@ -89,7 +89,7 @@
                     <td>TODO</td>
                     <td>{{ x.participants.all.count }}</td>
                     <td class="center"><a href="phaseDetail/{{ projectId }}/{{ x.id }}">🔎</a></td>
-                    {% if is_authorized and is_editable %}
+                    {% if is_user_authorized and is_editable %}
                         <td class="center"><a href="editPhase/{{ x.id }}/{{ projectId }}">✏️</a></td>
                         <td class="center"><a href="removePhase/{{ x.id }}/{{projectId }}">🗑️</a></td>
                     {% endif %}
@@ -97,7 +97,7 @@
             {% endfor %}
         </table>
 
-        {% if is_authorized and is_editable %}
+        {% if is_user_authorized and is_editable %}
             <a class="button" href="addPhase/{{projectId}}">Přidat fázi</a>
         {% endif %}
 

@@ -145,7 +145,8 @@ def saveNewProject(request):
         name = request.POST["name"],
         description = request.POST["description"],
         foreignKeyManager = User.objects.get(id=request.POST["foreignKeyManager"]),   
-        foreignKeyManagerRisk = User.objects.get(id=request.POST["foreignKeyManagerRisk"]),   
+        foreignKeyManagerRisk = User.objects.get(id=request.POST["foreignKeyManagerRisk"]),
+        state = "New" 
     )
     newProject.save()
     newProject.members.add(User.objects.get(id=request.POST["foreignKeyManager"]))
@@ -186,7 +187,9 @@ def removeProject(request, id):
 def projectDetail(request, id):
     template = loader.get_template("projectDetail.html")
     project = Project.objects.get(id=id)
-    is_authorized = Project.objects.get(id=id).foreignKeyManager == User.objects.get(id=request.session["id"]) or request.session.get("privileges") == "admin"
+    user_is_proj_manager_of_project = Project.objects.get(id=id).foreignKeyManager == User.objects.get(id=request.session["id"])
+    user_is_admin = request.session.get("privileges") == "admin"
+    is_authorized = user_is_proj_manager_of_project or user_is_admin
     context = {
         "privileges": request.session.get("privileges"),
         "users": Project.objects.get(id=id).members.all(),
