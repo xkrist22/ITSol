@@ -389,6 +389,33 @@ def removeRisk(request, projectId, phaseId, riskId):
     log_info(request, f"remove risk {riskId} from project {projectId}, phase {phaseId}")
     return phaseDetail(request, projectId, phaseId)
 
+def editRisk(request, projectId, phaseId, riskId):
+    template = loader.get_template("editRisk.html")
+    risk = Risk.objects.get(id=riskId)
+    context = {
+        "risk": risk,
+        "project_id": projectId,
+        "phase_id": phaseId
+    }
+    log_info(request, f"navigation to 'Edit risk' view from project {projectId}, phase {phaseId}, risk {riskId}")
+    return HttpResponse(template.render(context, request))
+
+def saveEditedRisk(request, projectId, phaseId, riskId):
+    risk = Risk.objects.get(id=riskId)
+    data = request.POST
+    risk.name = data["name"]
+    risk.description = data["description"]
+    risk.category = data["category"]
+    risk.threat = data["threat"]
+    risk.triggers = data["triggers"]
+    risk.reactions = data["reactions"]
+    risk.probability = data["probability"]
+    risk.impact = data["impact"]
+    risk.state = data["state"]
+    risk.save()
+    log_info(request, f"save edited risk {riskId}")
+    return HttpResponseRedirect(f"/riskManagement/projects/projectDetail/phaseDetail/{projectId}/{phaseId}")
+
 def checkRisk(request, projectId, phaseId, riskId):
     accept = bool(request.GET.get("accept", False))
     risk = Risk.objects.get(id=riskId)

@@ -50,10 +50,9 @@
                             </a>
                         </td>
                     {% endif %}
-                    <!-- TODO -->
                     {% if is_editable and can_edit_project  %}
                         <td class="center">
-                            <a href="">
+                            <a href="/riskManagement/projects/projectDetail/phaseDetail/{{ project.id }}/{{ phase.id }}/{{ x.id }}/editRisk">
                                 ✏️ edit risk
                             </a>
                         </td>

@@ -33,6 +33,8 @@ urlpatterns = [
     path('projects/projectDetail/phaseDetail/<int:projectId>/<int:phaseId>/addRisk', views.addRisk, name='addRisk'),
     path('projects/projectDetail/phaseDetail/<int:projectId>/<int:phaseId>/saveNewRisk', views.saveNewRisk, name='saveNewRisk'),
     path('projects/projectDetail/phaseDetail/<int:projectId>/<int:phaseId>/<int:riskId>/removeRisk', views.removeRisk, name='removeRisk'),
+    path('projects/projectDetail/phaseDetail/<int:projectId>/<int:phaseId>/<int:riskId>/editRisk', views.editRisk, name='editRisk'),
+    path('projects/projectDetail/phaseDetail/<int:projectId>/<int:phaseId>/<int:riskId>/saveEditedRisk', views.saveEditedRisk, name='saveEditedRisk'),
     path('projects/projectDetail/phaseDetail/<int:projectId>/<int:phaseId>/<int:riskId>/checkRisk', views.checkRisk, name='checkRisk'),
     path('projects/projectDetail/phaseDetail/<int:projectId>/<int:phaseId>/<int:riskId>/riskDetail', views.riskDetail, name='riskDetail')
 ]
