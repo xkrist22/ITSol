@@ -4,9 +4,7 @@ from django.urls import reverse
 from .models import User, Risk, Project, Phase
 from django.db.models import Q
 from hashlib import md5
-import logging
-
-logger = logging.getLogger(__name__)
+from .helpers import log_info
 
 def index(request):
     for key in list(request.session.keys()):
@@ -309,7 +307,7 @@ def phaseDetail(request, projectId, phaseId):
         "risks": Risk.objects.filter(foreignKeyPhase=phase.id),
         "is_editable": project.state != "Closed" and project.state != "Canceled"
     }
-    logger.info(f"User {current_user_id} entered phase detail view")
+    log_info(request, "user entered phase detail view")
     return HttpResponse(template.render(context, request))
 
 def addRisk(request, projectId, phaseId):
