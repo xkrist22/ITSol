@@ -20,7 +20,7 @@
                 <th>State</th>
                 <th>Accepted</th>
                 <!-- Risk approval/rejection buttons -->
-                {% if privileges == "risk-manager" or can_edit_project %}
+                {% if is_authorized_to_approve_risk %}
                     <th></th>
                     <th></th>
                 {% endif %}
@@ -38,7 +38,7 @@
                     <td>{{x.state}}</td>
                     <td>{{x.accepted}}</td>
                     <!-- Risk approval/rejection buttons -->
-                    {% if privileges == "risk-manager" and is_editable %}
+                    {% if is_authorized_to_approve_risk %}
                         <td class="center">
                             <a href="/riskManagement/projects/projectDetail/phaseDetail/{{ project.id }}/{{ phase.id }}/{{ x.id }}/checkRisk?accept=True">
                                 ✔️
@@ -50,12 +50,14 @@
                             </a>
                         </td>
                     {% endif %}
-                    {% if is_editable and can_edit_project  %}
+                    {% if is_editable and is_authorized_to_edit %}
+                        {% if risk.accepted == False %}
                         <td class="center">
                             <a href="/riskManagement/projects/projectDetail/phaseDetail/{{ project.id }}/{{ phase.id }}/{{ x.id }}/editRisk">
                                 ✏️ edit risk
                             </a>
                         </td>
+                        {% endif %}
                         <td class="center">
                             <a href="/riskManagement/projects/projectDetail/phaseDetail/{{ project.id }}/{{ phase.id }}/{{ x.id }}/removeRisk">
                                 🗑️ remove risk
@@ -71,7 +73,7 @@
             {% endfor %}
         </table>
 
-        {% if can_edit_project and is_editable %}
+        {% if is_editable and is_authorized_to_edit %}
             <a class="button" href="/riskManagement/projects/projectDetail/phaseDetail/{{ project.id }}/{{ phase.id }}/addRisk">Přidat riziko</a>
         {% endif %}
     </body>

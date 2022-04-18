@@ -328,19 +328,24 @@ def saveUserToPhase(request, projectId):
 ############ Project phase and risks related functions
 
 def phaseDetail(request, projectId, phaseId):
+
+    # Authorization
+    current_user_id = request.session["id"]
+    privileges = request.session["privileges"]
+    project = Project.objects.get(id=projectId)
+    is_phase_editable = project.state != "Closed" and project.state != "Canceled"
+    is_authorized_to_edit = Phase.objects.filter(Q(id=phaseId) & Q(participants__id=current_user_id)).exists() and (privileges == "project-manager" or privileges == "risk-manager")
+    is_authorized_to_approve_risk = Project.objects.get(id=projectId).foreignKeyManagerRisk == User.objects.get(id=current_user_id)
+
     template = loader.get_template("phaseDetail.html")
     phase = Phase.objects.get(id=phaseId)
-    current_user_id = request.session["id"]
-    project = Project.objects.get(id=projectId)
     context = {
-        "privileges": request.session.get("privileges"),
-        "can_edit_project": Project.objects.get(id=projectId).foreignKeyManager == User.objects.get(id=current_user_id) or \
-            Project.objects.get(id=projectId).foreignKeyManagerRisk == User.objects.get(id=current_user_id),
+        "is_editable": is_phase_editable,
+        "is_authorized_to_edit": is_authorized_to_edit,
+        "is_authorized_to_approve_risk": is_authorized_to_approve_risk,
         "project": project,
         "phase": phase,
-        "current_user_id": current_user_id,
         "risks": Risk.objects.filter(foreignKeyPhase=phase.id),
-        "is_editable": project.state != "Closed" and project.state != "Canceled"
     }
     log_info(request, f"navigation to 'Phase detail' view from project {projectId}, phase {phaseId}")
     return HttpResponse(template.render(context, request))
