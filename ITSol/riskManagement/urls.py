@@ -20,6 +20,7 @@ urlpatterns = [
     path('projects/projectDetail/<int:id>', views.projectDetail, name='projectDetail'),
     path('projects/projectDetail/removeUserFromProject/<int:idUser>/<int:idProject>', views.removeUserFromProject, name='removeUserFromProject'),
     path('projects/projectDetail/addUserToProject/<int:projectId>', views.addUserToProject, name='addUserToProject'),
+    path('projects/projectDetail/changeProjectState/<int:projectId>', views.changeProjectState, name='changeProjectState'),
     path('projects/projectDetail/addPhase/<int:projectId>', views.addPhase, name='addPhase'),
     path('projects/projectDetail/addPhase/saveNewPhase/<int:projectId>', views.saveNewPhase, name='saveNewPhase'),
     path('projects/projectDetail/removePhase/<int:phaseId>/<int:projectId>', views.removePhase, name='removePhase'),
@@ -27,6 +28,13 @@ urlpatterns = [
     path('projects/projectDetail/editPhase/saveEditPhase/<int:phaseId>/<int:projectId>', views.saveEditPhase, name='saveEditPhase'),
     path('projects/projectDetail/addUserToPhase/<int:userId>/<int:projectId>', views.addUserToPhase, name='addUserToPhase'),
     path('projects/projectDetail/addUserToPhase/saveUserToPhase/<int:projectId>', views.saveUserToPhase, name='saveUserToPhase'),
-    path('projects/projectDetail/showRisks/<int:phaseId>/<int:projectId>', views.showRisks, name='showRisks'),
 
+    path('projects/projectDetail/phaseDetail/<int:projectId>/<int:phaseId>', views.phaseDetail, name='phaseDetail'),
+    path('projects/projectDetail/phaseDetail/<int:projectId>/<int:phaseId>/addRisk', views.addRisk, name='addRisk'),
+    path('projects/projectDetail/phaseDetail/<int:projectId>/<int:phaseId>/saveNewRisk', views.saveNewRisk, name='saveNewRisk'),
+    path('projects/projectDetail/phaseDetail/<int:projectId>/<int:phaseId>/<int:riskId>/removeRisk', views.removeRisk, name='removeRisk'),
+    path('projects/projectDetail/phaseDetail/<int:projectId>/<int:phaseId>/<int:riskId>/editRisk', views.editRisk, name='editRisk'),
+    path('projects/projectDetail/phaseDetail/<int:projectId>/<int:phaseId>/<int:riskId>/saveEditedRisk', views.saveEditedRisk, name='saveEditedRisk'),
+    path('projects/projectDetail/phaseDetail/<int:projectId>/<int:phaseId>/<int:riskId>/checkRisk', views.checkRisk, name='checkRisk'),
+    path('projects/projectDetail/phaseDetail/<int:projectId>/<int:phaseId>/<int:riskId>/riskDetail', views.riskDetail, name='riskDetail')
 ]

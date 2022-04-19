@@ -23,10 +23,9 @@ TODO
 - přiřazení zaměstnanců do fází
 - přidávání, editace, odstranění fází
 - zobrazování podrobností o fází: seznam rizik
+- přidávání, editace, schvalování, odebírání rízik
+- logging do info.log souboru
 
 ## TODO
-- přidávání rizik
-- editace, schvalování, odebírání rízik
-- Kontrola nevalidních vstupů!!!
-- vložit logo ITSol do složky `ITSol/RiskManagement/static`
-- generování a zobrazování statistik
+
+- generování a zobrazování statistik !!!

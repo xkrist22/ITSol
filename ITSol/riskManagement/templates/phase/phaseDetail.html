@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {% include 'head.html' %}
+    </head>
+    <body>
+        {% include 'nav.html' %}
+
+        <a class="button" href="/riskManagement/projects/projectDetail/{{ project.id }}">
+            &#x2190; Spátky na projekt
+        </a>
+
+        <h2>Registr rizik pro projekt {{ project.name }}, fáze {{ phase.name }}</h2>
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Date</th>
+                <th>Probability</th>
+                <th>State</th>
+                <th>Accepted</th>
+                <!-- Risk approval/rejection buttons -->
+                {% if is_authorized_to_approve_risk %}
+                    <th></th>
+                    <th></th>
+                {% endif %}
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+
+            {% for x in risks %}
+                <tr>
+                    <td>{{x.id}}</td>
+                    <td>{{x.name}}</td>
+                    <td>{{x.datetime_created}}</td>
+                    <td>{{x.probability}}</td>
+                    <td>{{x.state}}</td>
+                    <td>{{x.accepted}}</td>
+                    <!-- Risk approval/rejection buttons -->
+                    {% if is_authorized_to_approve_risk %}
+                        <td class="center">
+                            <a href="/riskManagement/projects/projectDetail/phaseDetail/{{ project.id }}/{{ phase.id }}/{{ x.id }}/checkRisk?accept=True">
+                                ✔️
+                            </a>
+                        </td>
+                        <td class="center">
+                            <a href="/riskManagement/projects/projectDetail/phaseDetail/{{ project.id }}/{{ phase.id }}/{{ x.id }}/checkRisk">
+                                ❌
+                            </a>
+                        </td>
+                    {% endif %}
+                    {% if is_editable and is_authorized_to_edit %}
+                        {% if risk.accepted == False %}
+                        <td class="center">
+                            <a href="/riskManagement/projects/projectDetail/phaseDetail/{{ project.id }}/{{ phase.id }}/{{ x.id }}/editRisk">
+                                ✏️ edit risk
+                            </a>
+                        </td>
+                        {% endif %}
+                        <td class="center">
+                            <a href="/riskManagement/projects/projectDetail/phaseDetail/{{ project.id }}/{{ phase.id }}/{{ x.id }}/removeRisk">
+                                🗑️ remove risk
+                            </a>
+                        </td>
+                    {% endif %}
+                    <td class="center">
+                        <a href="/riskManagement/projects/projectDetail/phaseDetail/{{ project.id }}/{{ phase.id }}/{{ x.id }}/riskDetail">
+                            🔎 
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+
+        {% if is_editable and is_authorized_to_edit %}
+            <a class="button" href="/riskManagement/projects/projectDetail/phaseDetail/{{ project.id }}/{{ phase.id }}/addRisk">Přidat riziko</a>
+        {% endif %}
+    </body>
+</html>
+

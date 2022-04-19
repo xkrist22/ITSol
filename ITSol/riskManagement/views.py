@@ -1,12 +1,10 @@
-from multiprocessing import context
-from re import template
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.urls import reverse
-from .models import User, RiskType, Risk, Project, Phase
+from .models import User, Risk, Project, Phase
 from django.db.models import Q
 from hashlib import md5
-
+from .helpers import log_info
 
 def index(request):
     for key in list(request.session.keys()):
@@ -26,6 +24,7 @@ def login(request):
             request.session["login"] = userLogin
             request.session["privileges"] = user.privileges
             request.session["id"] = user.id
+            log_info(request, f"login to app")
             return HttpResponseRedirect(reverse("home", args=("Jste přihlášen",)))
         else:
             return HttpResponseRedirect(reverse("index"))
@@ -40,6 +39,7 @@ def home(request, msg):
         "msg": msg
     }
     template = loader.get_template("home.html")
+    log_info(request, f"navigation to 'Home' view")
     return HttpResponse(template.render(context, request))
 
 
@@ -49,6 +49,7 @@ def users(request):
         "users": User.objects.all().values(),
     }
     template = loader.get_template("users.html")
+    log_info(request, f"navigation to 'Users' view")
     return HttpResponse(template.render(context, request))
 
 
@@ -59,6 +60,7 @@ def removeUser(request, id):
     if user.privileges == "admin":
         return HttpResponseRedirect(reverse("home", args=("Nelze odstranit administrátora!",)))
     user.delete()
+    log_info(request, f"remove user with id {id}")
     return HttpResponseRedirect(reverse("users"))
 
 
@@ -73,6 +75,7 @@ def editUser(request, id):
         "id": id,
     }
     template = loader.get_template("editUsers.html")
+    log_info(request, f"navigation to 'Edit user' view")
     return HttpResponse(template.render(context, request))
 
 
@@ -83,6 +86,7 @@ def addUser(request):
         "privileges": request.session.get("privileges"),
     }
     template = loader.get_template("addUser.html")
+    log_info(request, f"navigation to 'Add user' view")
     return HttpResponse(template.render(context, request))
 
 
@@ -99,6 +103,7 @@ def saveNewUser(request):
         privileges = request.POST["privileges"],
     )
     newUser.save()
+    log_info(request, f"add new user with name {newUser.firstName} {newUser.lastName} to database")
     return HttpResponseRedirect(reverse("users"))
 
 
@@ -114,6 +119,7 @@ def saveEditUser(request, id):
     user.password = md5(request.POST["password"].encode()).hexdigest()
     user.privileges = request.POST["privileges"]
     user.save()
+    log_info(request, f"save edited user with name {user.firstName} {user.lastName}")
     return HttpResponseRedirect(reverse("users"))
 
 
@@ -128,6 +134,7 @@ def createProject(request):
         "risk_managers": risk_managers,
     }
     template = loader.get_template("createProject.html")
+    log_info(request, f"navigation to 'Create new project' view")
     return HttpResponse(template.render(context, request))
 
 
@@ -136,9 +143,10 @@ def saveNewProject(request):
         return HttpResponseRedirect(reverse("home", args=("Projekt nebyl vytvořen, nemáte dostatečná oprávnění",)))
     newProject = Project(
         name = request.POST["name"],
-        describtion = request.POST["describtion"],
+        description = request.POST["description"],
         foreignKeyManager = User.objects.get(id=request.POST["foreignKeyManager"]),   
-        foreignKeyManagerRisk = User.objects.get(id=request.POST["foreignKeyManagerRisk"]),   
+        foreignKeyManagerRisk = User.objects.get(id=request.POST["foreignKeyManagerRisk"]),
+        state = "New" 
     )
     newProject.save()
     newProject.members.add(User.objects.get(id=request.POST["foreignKeyManager"]))
@@ -152,6 +160,7 @@ def saveNewProject(request):
             continue
 
     newProject.save()
+    log_info(request, f"add new project with name {newProject.name} to database")
     return HttpResponseRedirect(reverse("projects"))
 
 
@@ -162,6 +171,7 @@ def projects(request):
         "projects": projects,
     }
     template = loader.get_template("projects.html")
+    log_info(request, f"navigation to 'Projects' view")
     return HttpResponse(template.render(context, request))
 
 
@@ -170,28 +180,41 @@ def removeProject(request, id):
     if project.foreignKeyManager != User.objects.get(id=request.session["id"]) and request.session["privileges"] != "admin":
         return HttpResponseRedirect(reverse("home", args=("Projekt nebyl odstraněn, nemáte dostatečná oprávnění",)))
     project.delete()
+    log_info(request, f"remove project {id}")
     return HttpResponseRedirect(reverse("projects"))
 
 
 def projectDetail(request, id):
     template = loader.get_template("projectDetail.html")
-    
+    project = Project.objects.get(id=id)
+    user_is_proj_manager_of_project = Project.objects.get(id=id).foreignKeyManager == User.objects.get(id=request.session["id"])
+    user_is_admin = request.session.get("privileges") == "admin"
+    is_authorized = user_is_proj_manager_of_project or user_is_admin
     context = {
         "privileges": request.session.get("privileges"),
         "users": Project.objects.get(id=id).members.all(),
         "phases": Phase.objects.filter(foreignKeyProject=id),
         "projectId": id,
-        "project": Project.objects.get(id=id),
-        "canEditProject": Project.objects.get(id=id).foreignKeyManager == User.objects.get(id=request.session["id"])
+        "project": project,
+        "is_user_authorized": is_authorized,
+        "is_editable": project.state != "Closed" and project.state != "Canceled"
     }
+    log_info(request, f"navigation to 'Project detail' view")
     return HttpResponse(template.render(context, request))
 
+def changeProjectState(request, projectId):
+    project = Project.objects.get(id=projectId)
+    project.state = request.POST["state"]
+    project.save()
+    log_info(request, f"change state of the project {projectId}")
+    return HttpResponseRedirect(reverse("projectDetail", args=(projectId,)))
 
 def removeUserFromProject(request, idUser, idProject):
     if request.session["privileges"] != "admin" and request.session["privileges"] != "project-manager":
         return HttpResponseRedirect(reverse("home", args=("Uživatel nebyl odebrán z projektu, nemáte dostatečná oprávnění",)))
     user = User.objects.get(id=idUser)
     Project.objects.get(id=idProject).members.remove(user)
+    log_info(request, f"remove user {idUser} from project {idProject}")
     return HttpResponseRedirect(reverse("projectDetail", args=(idProject,)))
 
 
@@ -199,7 +222,9 @@ def addUserToProject(request, projectId):
     project = Project.objects.get(id=projectId)
     if project.foreignKeyManager != User.objects.get(id=request.session["id"]) and request.session["privileges"] != "admin":
         return HttpResponseRedirect(reverse("home", args=("Uživatel nebyl přidán do projektu, nemáte dostatečná oprávnění",)))
-    project.members.add(User.objects.get(userLogin=request.POST["login"]))
+    login = request.POST["login"]
+    project.members.add(User.objects.get(userLogin=login))
+    log_info(request, f"add user with login {login} to project {projectId}")
     return HttpResponseRedirect(reverse("projectDetail", args=(projectId,)))
 
 
@@ -210,6 +235,7 @@ def addPhase(request, projectId):
         "canEditProject": Project.objects.get(id=projectId).foreignKeyManager == User.objects.get(id=request.session["id"]),
         "projectId": projectId
     }
+    log_info(request, f"navigation to 'Add phase' view")
     return HttpResponse(template.render(context, request))
 
 
@@ -219,12 +245,13 @@ def saveNewPhase(request, projectId):
         return HttpResponseRedirect(reverse("home", args=("Fáze nebyla přidána do projektu, nemáte dostatečná oprávnění",)))
     phase = Phase(
         name = request.POST["name"],
-        describtion = request.POST["describtion"],
+        description = request.POST["description"],
         dateFrom = request.POST["dateFrom"],
         dateTo = request.POST["dateTo"],
         foreignKeyProject = project,
     )
     phase.save()
+    log_info(request, f"add new phase to project {projectId}")
     return HttpResponseRedirect(reverse("projectDetail", args=(projectId,)))
 
 
@@ -234,6 +261,7 @@ def removePhase(request, phaseId, projectId):
     if project.foreignKeyManager != User.objects.get(id=request.session["id"]) and request.session["privileges"] != "admin":
         return HttpResponseRedirect(reverse("home", args=("Fáze nebyla odstraněna z projektu, nemáte dostatečná oprávnění",)))
     phase.delete()
+    log_info(request, f"remove phase {phaseId} from project {projectId}")
     return HttpResponseRedirect(reverse("projectDetail", args=(projectId,)))
 
 
@@ -246,6 +274,7 @@ def editPhase(request, phaseId, projectId):
         "phaseId": phaseId,
         "phase": Phase.objects.get(id=phaseId),
     }
+    log_info(request, f"navigation to 'Edit phase' view from project {projectId}, phase {phaseId}")
     return HttpResponse(template.render(context, request))
 
 
@@ -255,23 +284,31 @@ def saveEditPhase(request, phaseId, projectId):
     if project.foreignKeyManager != User.objects.get(id=request.session["id"]) and request.session["privileges"] != "admin":
         return HttpResponseRedirect(reverse("home", args=("Fáze nebyla odstraněna z projektu, nemáte dostatečná oprávnění",)))
     phase.name = request.POST["name"]
-    phase.describtion = request.POST["describtion"]
+    phase.description = request.POST["description"]
     phase.dateFrom = request.POST["dateFrom"]
     phase.dateTo = request.POST["dateTo"]
     phase.save()
+    log_info(request, f"save edited phase {phaseId}")
     return HttpResponseRedirect(reverse("projectDetail", args=(projectId,)))
 
 
 def addUserToPhase(request, userId, projectId):
+
+    # Authorization
+    current_user_id = request.session["id"]
+    is_proj_manager = request.session.get("privileges") == "project-manager"
+    is_proj_manager_of_project = Project.objects.get(id=projectId).foreignKeyManager == User.objects.get(id=current_user_id)
+    is_authorized = is_proj_manager and is_proj_manager_of_project
+
     project = Project.objects.get(id=projectId)
     template = loader.get_template("addUserToPhase.html")
     context = {
-        "privileges": request.session.get("privileges"),
-        "canEditProject": Project.objects.get(id=projectId).foreignKeyManager == User.objects.get(id=request.session["id"]),
+        "is_authorized": is_authorized,
         "projectId": projectId,
         "phases": Phase.objects.filter(foreignKeyProject=project),
         "user": User.objects.get(id=userId),
     }
+    log_info(request, f"navigation to 'Add user to phase' view")
     return HttpResponse(template.render(context, request))
 
 
@@ -279,23 +316,141 @@ def saveUserToPhase(request, projectId):
     project = Project.objects.get(id=projectId)
     if project.foreignKeyManager != User.objects.get(id=request.session["id"]) and request.session["privileges"] != "admin":
         return HttpResponseRedirect(reverse("home", args=("Fáze nebyla odstraněna z projektu, nemáte dostatečná oprávnění",)))
-    user = User.objects.get(userLogin=request.POST["userLogin"])
-    phase = Phase.objects.get(id=request.POST["phase"])
+    login = request.POST["userLogin"]
+    phase_id = request.POST["phase"]
+    user = User.objects.get(userLogin=login)
+    phase = Phase.objects.get(id=phase_id)
     phase.participants.add(user)
     phase.save()
+    log_info(request, f"add user {login} to project {projectId}, phase {phase_id}")
     return HttpResponseRedirect(reverse("projectDetail", args=(projectId,)))
 
+############ Project phase and risks related functions
 
-def showRisks(request, phaseId, projectId):
-    template = loader.get_template("showRisks.html")
+def phaseDetail(request, projectId, phaseId):
+
+    # Authorization
+    current_user_id = request.session["id"]
+    privileges = request.session["privileges"]
+    project = Project.objects.get(id=projectId)
+    is_phase_editable = project.state != "Closed" and project.state != "Canceled"
+    is_authorized_to_edit = Phase.objects.filter(Q(id=phaseId) & Q(participants__id=current_user_id)).exists() and (privileges == "project-manager" or privileges == "risk-manager")
+    is_authorized_to_approve_risk = Project.objects.get(id=projectId).foreignKeyManagerRisk == User.objects.get(id=current_user_id)
+
+    template = loader.get_template("phaseDetail.html")
     phase = Phase.objects.get(id=phaseId)
     context = {
-        "privileges": request.session.get("privileges"),
-        "canEditProject": Project.objects.get(id=projectId).foreignKeyManager == User.objects.get(id=request.session["id"]) or \
-            Project.objects.get(id=projectId).foreignKeyManagerRisk == User.objects.get(id=request.session["id"]),
-        "project": Project.objects.get(id=projectId),
+        "is_editable": is_phase_editable,
+        "is_authorized_to_edit": is_authorized_to_edit,
+        "is_authorized_to_approve_risk": is_authorized_to_approve_risk,
+        "project": project,
         "phase": phase,
-        "actualUserId": request.session["id"],
-        "risks": Risk.objects.filter(foreignKeyPhase=phase)
+        "risks": Risk.objects.filter(foreignKeyPhase=phase.id),
     }
+    log_info(request, f"navigation to 'Phase detail' view from project {projectId}, phase {phaseId}")
+    return HttpResponse(template.render(context, request))
+
+
+def addRisk(request, projectId, phaseId):
+
+    # Authorization
+    current_user_id = request.session["id"]
+    is_authorized = Phase.objects.filter(Q(id=phaseId) & Q(participants__id=current_user_id)).exists()
+
+    template = loader.get_template("addRisk.html")
+    context = {
+        "is_authorized": is_authorized,
+        "project_id": projectId,
+        "phase_id": phaseId
+    }
+    log_info(request, f"navigation to 'Add risk' view for project {projectId}, phase {phaseId}")
+    return HttpResponse(template.render(context, request))
+
+
+def saveNewRisk(request, projectId, phaseId):
+    data = request.POST
+    risk = Risk(
+        name = data["name"],
+        description = data["description"],
+        category = data["category"],
+        threat = data["threat"],
+        triggers = data["triggers"],
+        reactions = data["reactions"],
+        creator = User.objects.get(id=request.session["id"]),
+        probability = data["probability"],
+        impact = data["impact"],
+        state = data["state"],
+        datetime_created = data["datetime_created"],
+        foreignKeyPhase = Phase.objects.get(id=phaseId),
+        accepted = False
+    )
+    risk.save()
+    log_info(request, f"add new risk to project {projectId}, phase {phaseId}")
+    return HttpResponseRedirect(f"/riskManagement/projects/projectDetail/phaseDetail/{projectId}/{phaseId}")
+
+def removeRisk(request, projectId, phaseId, riskId):
+    risk = Risk.objects.get(id=riskId)
+    risk.delete()
+    log_info(request, f"remove risk {riskId} from project {projectId}, phase {phaseId}")
+    return phaseDetail(request, projectId, phaseId)
+
+def editRisk(request, projectId, phaseId, riskId):
+    template = loader.get_template("editRisk.html")
+    risk = Risk.objects.get(id=riskId)
+    context = {
+        "risk": risk,
+        "project_id": projectId,
+        "phase_id": phaseId
+    }
+    log_info(request, f"navigation to 'Edit risk' view from project {projectId}, phase {phaseId}, risk {riskId}")
+    return HttpResponse(template.render(context, request))
+
+def saveEditedRisk(request, projectId, phaseId, riskId):
+    risk = Risk.objects.get(id=riskId)
+    data = request.POST
+    risk.name = data["name"]
+    risk.description = data["description"]
+    risk.category = data["category"]
+    risk.threat = data["threat"]
+    risk.triggers = data["triggers"]
+    risk.reactions = data["reactions"]
+    risk.probability = data["probability"]
+    risk.impact = data["impact"]
+    risk.state = data["state"]
+    risk.save()
+    log_info(request, f"save edited risk {riskId}")
+    return HttpResponseRedirect(f"/riskManagement/projects/projectDetail/phaseDetail/{projectId}/{phaseId}")
+
+def checkRisk(request, projectId, phaseId, riskId):
+    accept = bool(request.GET.get("accept", False))
+    risk = Risk.objects.get(id=riskId)
+    risk.accepted = accept
+    risk.save()
+    action_name = "accept" if accept else "reject" 
+    log_info(request, f"{action_name} risk from project {projectId}, phase {phaseId}, risk {riskId}")
+    return phaseDetail(request, projectId, phaseId)
+
+def riskDetail(request, projectId, phaseId, riskId):
+    template = loader.get_template("riskDetail.html")
+    risk = Risk.objects.get(id=riskId)
+    creator = risk.creator
+    context = {
+        "risk": {
+            "name": risk.name,
+            "creator": creator.firstName + " " + creator.lastName,
+            "accepted": risk.accepted,
+            "description": risk.description,
+            "category": risk.category,
+            "threat": risk.threat,
+            "triggers": risk.triggers,
+            "reactions": risk.reactions,
+            "probability": risk.probability,
+            "impact": risk.impact,
+            "state": risk.state,
+            "datetime_created": risk.datetime_created
+        },
+        "project_id": projectId,
+        "phase_id": phaseId
+    }
+    log_info(request, f"navigation to 'Risk detail' view from project {projectId}, phase {phaseId}, risk {riskId}")
     return HttpResponse(template.render(context, request))

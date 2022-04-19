@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {% include 'head.html' %}
+    </head>
+    <body>
+        {% include 'nav.html' %}
+
+        <a class="button" href="/riskManagement/projects/projectDetail/phaseDetail/{{ project_id }}/{{ phase_id }}">
+            &#x2190; Spátky na fázy
+        </a>
+
+        <h2>Risk detail</h2>
+        <div class="center">
+            <form>
+                <label for="name">Name</label>
+                <input type="text" id="name" value="{{ risk.name }}" readonly />
+
+                <label for="creator">Creator</label>
+                <input type="text" id="creator" value="{{ risk.creator }}" readonly />
+
+                <h4>
+                    Accepted: 
+                    {% if risk.acceted %}
+                        ✔️
+                    {% else %}
+                        ❌
+                    {% endif %}
+                </h4>
+
+                <label for="description">Description</label>
+                <textarea id="description" readonly>{{ risk.description }}</textarea>
+
+                <label for="category">Category</label>
+                <input type="text" id="category" value="{{ risk.category }}" readonly />
+
+                <label for="threat">Threat</label>
+                <textarea id="threat" readonly>{{ risk.threat }}</textarea>
+
+                <label for="triggers">Triggers</label>
+                <input type="text" id="triggers" value="{{ risk.triggers }}" readonly/>
+
+                <label for="reactions">Reactions</label>
+                <textarea id="reactions" readonly>{{ risk.reactions }}</textarea>
+
+                <label for="probability">Probability</label>
+                <input type="number" id="probability" value="{{ risk.probability }}" readonly/>
+
+                <label for="impact">Impact</label>
+                <input type="text" id="impact" value="{{ risk.impact }}" readonly />
+
+                <label for="state">State</label>
+                <input type="text" id="state" value="{{ risk.state }}" readonly />
+
+                <label for="datetime_created">Datetime created</label>
+                <input type="text" id="datetime_created" value="{{ risk.datetime_created }}" readonly/>
+            </form>
+        </div>
+    </body>
+</html>

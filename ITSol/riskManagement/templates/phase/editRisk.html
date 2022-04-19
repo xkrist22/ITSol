@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {% include 'head.html' %}
+    </head>
+    <body>
+        {% include 'nav.html' %}
+
+        <a class="button" href="/riskManagement/projects/projectDetail/phaseDetail/{{ project_id }}/{{ phase_id }}">
+            &#x2190; Spátky na fázy
+        </a>
+
+        <h2>Risk detail</h2>
+        <div class="center">
+            <form action="/riskManagement/projects/projectDetail/phaseDetail/{{ project_id }}/{{ phase_id }}/{{ risk.id }}/saveEditedRisk" method="post" id="edit-risk-form">           
+                
+                {% csrf_token %}
+
+                <label for="name">Name</label>
+                <input type="text" name="name" id="name" value="{{ risk.name }}" />
+
+                <label for="description">Description</label>
+                <textarea id="description" name="description">{{ risk.description }}</textarea>
+
+                <label for="category">Category</label>
+                <select name="category" id="category" form="edit-risk-form">
+                    <option>Technické riziko</option>
+                    <option>Riziko řízení projektu</option>
+                    <option>Obchodní riziko</option>
+                    <option>Externí riziko</option>
+                </select>
+
+                <label for="threat">Threat</label>
+                <textarea id="threat" name="threat">{{ risk.threat }}</textarea>
+
+                <label for="triggers">Triggers</label>
+                <input type="text" id="triggers" name="triggers" value="{{ risk.triggers }}"/>
+
+                <label for="reactions">Reactions</label>
+                <textarea id="reactions" name="reactions">{{ risk.reactions }}</textarea>
+
+                <label for="probability">Probability</label>
+                <input type="number" id="probability" name="probability" value="{{ risk.probability }}"/>
+
+                <label for="impact">Impact</label>
+                <select name="impact" id="impact" form="edit-risk-form">
+                    <option>Small</option>
+                    <option>Medium</option>
+                    <option>Big</option>
+                </select>
+
+                <label for="state">State</label>
+                <select name="state" id="state" form="edit-risk-form">
+                    <option>Nové</option>
+                    <option>Uzavřené</option>
+                    <option>Přihodilo se</option>
+                </select>
+
+                <input type="submit" value="Save" />
+            </form>
+        </div>
+    </body>
+</html>

@@ -6,7 +6,7 @@
     <body>
         {% include 'nav.html' %}
 
-        {% if privileges == "admin" or privileges == "project-manager" %}
+        {% if privileges == "admin" %}
 
         <h2>Vytvořit nový projekt</h2>
 
@@ -15,7 +15,7 @@
                 {% csrf_token %}
                 <input type="text" name="name" placeholder="Jméno projektu">
                 <br />
-                <textarea name="describtion" placeholder="Popis projektu"></textarea>
+                <textarea name="description" placeholder="Popis projektu"></textarea>
                 <br />
                 <select name="foreignKeyManager" form="newProject">
                     <option value="" disabled selected>Projektový manažer</option>
@@ -36,6 +36,7 @@
                 <input type="submit" id="submitButton" value="Vytvořit projekt">            
             </form>
         </div>
+
         {% else %}
             Nemáte dostatečné oprávnění pro zobrazení modulu
         {% endif %}
