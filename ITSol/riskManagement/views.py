@@ -34,7 +34,9 @@ def login(request):
 
 
 def home(request, msg):
+    user = User.objects.get(id=request.session["id"])
     context = {
+        "user" :  User.objects.get(id=request.session["id"]),
         "privileges": request.session.get("privileges"),
         "msg": msg
     }
@@ -45,6 +47,7 @@ def home(request, msg):
 
 def users(request):
     context = {
+    "user" :  User.objects.get(id=request.session["id"]),
         "privileges": request.session.get("privileges"),
         "users": User.objects.all().values(),
     }
@@ -70,6 +73,7 @@ def editUser(request, id):
     editedUser = User.objects.get(id=id)
     print(request.session.get("privieges"))
     context = {
+    "user" :  User.objects.get(id=request.session["id"]),
         "privileges": request.session.get("privileges"),
         "user": editedUser,
         "id": id,
@@ -83,6 +87,7 @@ def addUser(request):
     if request.session.get("privileges") != "admin":
         return HttpResponseRedirect(reverse("home", args=("Nemáte dostatečné oprávnění pro přidávání uživatele",)))
     context = {
+    "user" :  User.objects.get(id=request.session["id"]),
         "privileges": request.session.get("privileges"),
     }
     template = loader.get_template("addUser.html")
@@ -129,6 +134,7 @@ def createProject(request):
     project_managers = User.objects.filter(Q(privileges="admin") | Q(privileges="project-manager")).values()
     risk_managers = User.objects.filter(Q(privileges="admin") | Q(privileges="project-manager") | Q(privileges="risk-manager")).values()
     context = {
+    "user" :  User.objects.get(id=request.session["id"]),
         "privileges": request.session.get("privileges"),
         "project_managers": project_managers,
         "risk_managers": risk_managers,
@@ -144,9 +150,9 @@ def saveNewProject(request):
     newProject = Project(
         name = request.POST["name"],
         description = request.POST["description"],
-        foreignKeyManager = User.objects.get(id=request.POST["foreignKeyManager"]),   
+        foreignKeyManager = User.objects.get(id=request.POST["foreignKeyManager"]),
         foreignKeyManagerRisk = User.objects.get(id=request.POST["foreignKeyManagerRisk"]),
-        state = "New" 
+        state = "New"
     )
     newProject.save()
     newProject.members.add(User.objects.get(id=request.POST["foreignKeyManager"]))
@@ -167,6 +173,7 @@ def saveNewProject(request):
 def projects(request):
     projects = Project.objects.filter(Q(foreignKeyManager=request.session["id"]) | Q(members=request.session["id"])).distinct()
     context = {
+    "user" :  User.objects.get(id=request.session["id"]),
         "privileges": request.session.get("privileges"),
         "projects": projects,
     }
@@ -191,6 +198,7 @@ def projectDetail(request, id):
     user_is_admin = request.session.get("privileges") == "admin"
     is_authorized = user_is_proj_manager_of_project or user_is_admin
     context = {
+    "user" :  User.objects.get(id=request.session["id"]),
         "privileges": request.session.get("privileges"),
         "users": Project.objects.get(id=id).members.all(),
         "phases": Phase.objects.filter(foreignKeyProject=id),
@@ -200,6 +208,42 @@ def projectDetail(request, id):
         "is_editable": project.state != "Closed" and project.state != "Canceled"
     }
     log_info(request, f"navigation to 'Project detail' view")
+    return HttpResponse(template.render(context, request))
+def statistics(request, id):
+    template = loader.get_template("projectStatistics.html")
+    project = Project.objects.get(id=id)
+    phases = Phase.objects.filter(foreignKeyProject=id)
+    ph = []
+    for p in phases:
+        tmp = {}
+        tmp["name"] = p.name
+        tmp["big"] = 0
+        tmp["med"] = 0
+        tmp["sma"] = 0
+        tmp["prob"] = 1.0
+        tmp["mem"] = p.participants.all().count()
+        risk = Risk.objects.filter(foreignKeyPhase=p.id)
+        for r in risk:
+            if r.impact == "Big":
+                tmp["big"] = tmp["big"] + 1
+            if r.impact == "Small":
+                tmp["med"] = tmp["med"] + 1
+            if r.impact == "Medium":
+                tmp["sma"] = tmp["sma"] + 1
+            tmp["prob"] = tmp["prob"] * (r.probability / 100)
+        ph.append(tmp)
+    risks = Risk.objects.all()
+    context = {
+    "fazy" : ph,
+    "risks" : risks,
+    "user" :  User.objects.get(id=request.session["id"]),
+        "privileges": request.session.get("privileges"),
+        "users": Project.objects.get(id=id).members.all(),
+        "phases": phases,
+        "projectId": id,
+        "project": project,
+    }
+    log_info(request, f"navigation to 'Project statistics' view")
     return HttpResponse(template.render(context, request))
 
 def changeProjectState(request, projectId):
@@ -231,6 +275,7 @@ def addUserToProject(request, projectId):
 def addPhase(request, projectId):
     template = loader.get_template("addPhase.html")
     context = {
+    "user" :  User.objects.get(id=request.session["id"]),
         "privileges": request.session.get("privileges"),
         "canEditProject": Project.objects.get(id=projectId).foreignKeyManager == User.objects.get(id=request.session["id"]),
         "projectId": projectId
@@ -268,6 +313,7 @@ def removePhase(request, phaseId, projectId):
 def editPhase(request, phaseId, projectId):
     template = loader.get_template("editPhase.html")
     context = {
+    "user" :  User.objects.get(id=request.session["id"]),
         "privileges": request.session.get("privileges"),
         "canEditProject": Project.objects.get(id=projectId).foreignKeyManager == User.objects.get(id=request.session["id"]),
         "projectId": projectId,
@@ -303,6 +349,7 @@ def addUserToPhase(request, userId, projectId):
     project = Project.objects.get(id=projectId)
     template = loader.get_template("addUserToPhase.html")
     context = {
+    "user" :  User.objects.get(id=request.session["id"]),
         "is_authorized": is_authorized,
         "projectId": projectId,
         "phases": Phase.objects.filter(foreignKeyProject=project),
@@ -340,6 +387,7 @@ def phaseDetail(request, projectId, phaseId):
     template = loader.get_template("phaseDetail.html")
     phase = Phase.objects.get(id=phaseId)
     context = {
+    "user" :  User.objects.get(id=request.session["id"]),
         "is_editable": is_phase_editable,
         "is_authorized_to_edit": is_authorized_to_edit,
         "is_authorized_to_approve_risk": is_authorized_to_approve_risk,
@@ -359,6 +407,7 @@ def addRisk(request, projectId, phaseId):
 
     template = loader.get_template("addRisk.html")
     context = {
+    "user" :  User.objects.get(id=request.session["id"]),
         "is_authorized": is_authorized,
         "project_id": projectId,
         "phase_id": phaseId
@@ -398,6 +447,7 @@ def editRisk(request, projectId, phaseId, riskId):
     template = loader.get_template("editRisk.html")
     risk = Risk.objects.get(id=riskId)
     context = {
+    "user" :  User.objects.get(id=request.session["id"]),
         "risk": risk,
         "project_id": projectId,
         "phase_id": phaseId
@@ -426,7 +476,7 @@ def checkRisk(request, projectId, phaseId, riskId):
     risk = Risk.objects.get(id=riskId)
     risk.accepted = accept
     risk.save()
-    action_name = "accept" if accept else "reject" 
+    action_name = "accept" if accept else "reject"
     log_info(request, f"{action_name} risk from project {projectId}, phase {phaseId}, risk {riskId}")
     return phaseDetail(request, projectId, phaseId)
 
@@ -435,6 +485,7 @@ def riskDetail(request, projectId, phaseId, riskId):
     risk = Risk.objects.get(id=riskId)
     creator = risk.creator
     context = {
+    "user" :  User.objects.get(id=request.session["id"]),
         "risk": {
             "name": risk.name,
             "creator": creator.firstName + " " + creator.lastName,

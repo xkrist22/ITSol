@@ -25,6 +25,7 @@ urlpatterns = [
     path('projects/projectDetail/addPhase/saveNewPhase/<int:projectId>', views.saveNewPhase, name='saveNewPhase'),
     path('projects/projectDetail/removePhase/<int:phaseId>/<int:projectId>', views.removePhase, name='removePhase'),
     path('projects/projectDetail/editPhase/<int:phaseId>/<int:projectId>', views.editPhase, name='editPhase'),
+    path('projects/projectDetail/statistics/<int:id>', views.statistics, name='statistics'),
     path('projects/projectDetail/editPhase/saveEditPhase/<int:phaseId>/<int:projectId>', views.saveEditPhase, name='saveEditPhase'),
     path('projects/projectDetail/addUserToPhase/<int:userId>/<int:projectId>', views.addUserToPhase, name='addUserToPhase'),
     path('projects/projectDetail/addUserToPhase/saveUserToPhase/<int:projectId>', views.saveUserToPhase, name='saveUserToPhase'),

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+
+<html>
+{% load template_filters %}
+    <head>
+        {% include 'head.html' %}
+    </head>
+    <body>
+        {% include 'nav.html' %}
+
+
+        <a class="button" href="/riskManagement/projects/projectDetail/{{ project.id }}">
+            &#x2190; Spátky na projekt
+        </a>
+            <h2>Zobrazit statistiky projektu {{project.name}}</h2>
+
+            <div class="center">
+              <select name="Statistiky" id="stat">
+                <option value="fazy">Štatistiky pre fazy</option>
+                <option value="technical">Štatistiky pre technické riziká</option>
+                <option value="riadene">Štatistiky pre riziká riadenia projektu</option>
+                <option value="store">Štatistiky pre obchodné riziká</option>
+                <option value="external">Štatistiky pre externé riziká</option>
+              </select>
+              <a class="button" style="cursor:pointer;" id="btn" onclick="show()">
+                  Zobrazit
+              </a>
+            </div>
+            <table id="fazTable" style="display:none">
+                <tr>
+                    <th>Nazov</th>
+                    <th>Počet rizík s veľkým impaktom</th>
+                    <th>Počet rizík so stredným impaktom</th>
+                    <th>Počet rizík s malým impaktom</th>
+                    <th>Pravdepodobnosť rizík</th>
+                    <th>Počet ľudí</th>
+                </tr>
+                {% for x in fazy %}
+                <tr>
+                  <td>{{ x|get_item:"name" }}</td>
+                  <td>{{ x|get_item:"big" }}</td>
+                  <td>{{ x|get_item:"med" }}</td>
+                  <td>{{ x|get_item:"sma" }}</td>
+                  <td>{{ x|get_item:"prob" }}</td>
+                  <td>{{ x|get_item:"mem" }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+            <table id="techTable" style="display:none">
+                <tr>
+                    <th>Kategória</th>
+                    <th>Impakt</th>
+                    <th>Pravdepodobnost</th>
+                </tr>
+                {% for x in risks %}
+                {% if x.category == 'Technické riziko' %}
+                <tr>
+                  <td>{{x.category}}</td>
+                  <td>{{x.impact}}</td>
+                  <td>{{x.probability}}</td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+            </table>
+            <table id="riadTable" style="display:none">
+                <tr>
+                    <th>Kategória</th>
+                    <th>Impakt</th>
+                    <th>Pravdepodobnost</th>
+                </tr>
+                {% for x in risks %}
+                {% if x.category == 'Riziko řízení projektu' %}
+                <tr>
+                  <td>{{x.category}}</td>
+                  <td>{{x.impact}}</td>
+                  <td>{{x.probability}}</td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+            </table>
+            <table id="obchTable" style="display:none">
+                <tr>
+                    <th>Kategória</th>
+                    <th>Impakt</th>
+                    <th>Pravdepodobnost</th>
+                </tr>
+                {% for x in risks %}
+                {% if x.category == 'Obchodní riziko' %}
+                <tr>
+                  <td>{{x.category}}</td>
+                  <td>{{x.impact}}</td>
+                  <td>{{x.probability}}</td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+            </table>
+            <table id="extTable" style="display:none">
+                <tr>
+                    <th>Kategória</th>
+                    <th>Impakt</th>
+                    <th>Pravdepodobnost</th>
+                </tr>
+                {% for x in risks %}
+                {% if x.category == 'Externí riziko' %}
+                <tr>
+                  <td>{{x.category}}</td>
+                  <td>{{x.impact}}</td>
+                  <td>{{x.probability}}</td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+            </table>
+
+
+    </body>
+</html>
+<script type="text/javascript">
+function show(){
+  var val;
+  val = document.getElementById("stat").value;
+  if (val == "technical"){
+    document.getElementById("fazTable").style.display="none";
+    document.getElementById("techTable").style.display="";
+    document.getElementById("riadTable").style.display="none";
+    document.getElementById("obchTable").style.display="none";
+    document.getElementById("extTable").style.display="none";
+  }
+  else if (val == "riadene"){
+    document.getElementById("fazTable").style.display="none";
+    document.getElementById("techTable").style.display="none";
+    document.getElementById("riadTable").style.display="";
+    document.getElementById("obchTable").style.display="none";
+    document.getElementById("extTable").style.display="none";
+  }
+  else if (val == "store"){
+    document.getElementById("fazTable").style.display="none";
+    document.getElementById("techTable").style.display="none";
+    document.getElementById("riadTable").style.display="none";
+    document.getElementById("obchTable").style.display="";
+    document.getElementById("extTable").style.display="none";
+  }
+  else if (val == "external"){
+    document.getElementById("fazTable").style.display="none";
+    document.getElementById("techTable").style.display="none";
+    document.getElementById("riadTable").style.display="none";
+    document.getElementById("obchTable").style.display="none";
+    document.getElementById("extTable").style.display="";
+  }
+  else if (val == "fazy"){
+    document.getElementById("fazTable").style.display="";
+    document.getElementById("techTable").style.display="none";
+    document.getElementById("riadTable").style.display="none";
+    document.getElementById("obchTable").style.display="none";
+    document.getElementById("extTable").style.display="none";
+  }
+}
+</script>

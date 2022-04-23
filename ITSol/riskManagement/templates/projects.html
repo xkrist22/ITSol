@@ -4,11 +4,12 @@
         {% include 'head.html' %}
     </head>
     <body>
-        {% include 'nav.html' %}  
-        
-        <h2>Moje projekty</h2>
+        {% include 'nav.html' %}
 
-        <table>
+        <h2>Moje projekty</h2>
+        <input type="text" id="myInput" onkeyup="lookUp()"
+        placeholder="Search in projects table">
+        <table id="projectTable">
             <tr>
                 <th>ID</th>
                 <th>Jméno</th>
@@ -38,4 +39,25 @@
         </table>
     </body>
 </html>
+<script>
+function lookUp() {
+  var input, filter, table, tr, td, i, txtValue;
+  input = document.getElementById("myInput");
+  filter = input.value.toUpperCase();
+  table = document.getElementById("projectTable");
+  tr = table.getElementsByTagName("tr");
+  for (i = 0; i < tr.length; i++) {
+    td = tr[i].getElementsByTagName("td");
+    for (j = 0; j < td.length; j++) {
+      txtValue = tr[i].getElementsByTagName("td")[j].textContent || tr[i].getElementsByTagName("td")[j].innerText;
+      if (txtValue.toUpperCase().indexOf(filter) > -1) {
+        tr[i].style.display = "";
+        break;
+      } else {
+        tr[i].style.display = "none";
+      }
+    }
 
+  }
+}
+</script>

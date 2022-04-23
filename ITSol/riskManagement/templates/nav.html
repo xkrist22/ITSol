@@ -1,8 +1,13 @@
 <div class="header">
     {% load static %}
-    <img src="{% static 'logo.jpg' %}" alt="Logo ITSol" style="width: 10%;" >
+    <img src="{% static 'logo.JPG' %}" alt="Logo ITSol" style="width: 10%;" >
 
-    <h1>Systém pro podporu řízení rizik v projektech</h1>     
+    <h1>Systém pro podporu řízení rizik v projektech</h1>
+    <div style=float:right;text-align:right;color:blue">{{user.firstName}}
+    {{user.lastName}}
+    Rola:
+    {{user.privileges}}</div>
+
 </div>
 
 <nav>
@@ -10,7 +15,6 @@
         <a href="{% url 'users' %}">Správa uživatelů</a>
         <a href="{% url 'createProject' %}">Vytvořit projekt</a>
     {% endif %}
-
     <!-- This is visible to all users -->
     <a href="{% url 'projects' %}">Moje projekty</a>
     <a href="{% url 'index' %}">Odhlásit</a>

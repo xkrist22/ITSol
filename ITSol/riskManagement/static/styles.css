@@ -6,7 +6,40 @@
     --normal: #8E94F2;
     --alarm: #BF4E30;
 }
+.button {
+  background-color: #4CAF50; /* Green */
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+}
+#myInput {
 
+  background-position: 10px 10px;
+  background-repeat: no-repeat;
+  display: inline;
+  width: 33%;
+  font-size: 16px;
+  padding: 12px 20px 12px 40px;
+  border: 1px solid #ddd;
+  margin-bottom: 12px;
+  margin-left: 2%
+}
+#myInput2 {
+
+  background-position: 10px 10px;
+  background-repeat: no-repeat;
+  display: inline;
+  width: 33%;
+  font-size: 16px;
+  padding: 12px 20px 12px 40px;
+  border: 1px solid #ddd;
+  margin-bottom: 12px;
+  margin-left: 2%
+}
 body {
     background-color: var(--light);
     color: var(--dark);
@@ -48,8 +81,8 @@ a.button {
     margin-bottom: 30px;
     background-color: var(--warm);
     padding: 10px;
-    color: var(--darker); 
-    text-decoration: none;   
+    color: var(--darker);
+    text-decoration: none;
     transition: color, background-color 0.3s;
     border-radius: 10px;
 }

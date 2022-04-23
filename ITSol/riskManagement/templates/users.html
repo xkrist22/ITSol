@@ -5,11 +5,13 @@
     </head>
     <body>
         {% include 'nav.html' %}
-        
+
         <h2>Registr uživatelů</h2>
 
         {% if privileges == "admin" %}
-            <table border="1">
+        <input type="text" id="myInput" onkeyup="lookUp()"
+        placeholder="Search in users table">
+            <table border="1" id="userTable">
                 <tr>
                     <th>ID</th>
                     <th>Křestní jméno</th>
@@ -35,7 +37,7 @@
                 </tr>
                 {% endfor %}
             </table>
-    
+
             <a class="button" href="addUser/">Přidat uživatele</a>
         {% else %}
             Nemáte dostatečné oprávnění pro zobrazení modulu
@@ -43,4 +45,25 @@
 
     </body>
 </html>
+<script>
+function lookUp() {
+  var input, filter, table, tr, td, i, txtValue;
+  input = document.getElementById("myInput");
+  filter = input.value.toUpperCase();
+  table = document.getElementById("userTable");
+  tr = table.getElementsByTagName("tr");
+  for (i = 0; i < tr.length; i++) {
+    td = tr[i].getElementsByTagName("td");
+    for (j = 0; j < td.length; j++) {
+      txtValue = tr[i].getElementsByTagName("td")[j].textContent || tr[i].getElementsByTagName("td")[j].innerText;
+      if (txtValue.toUpperCase().indexOf(filter) > -1) {
+        tr[i].style.display = "";
+        break;
+      } else {
+        tr[i].style.display = "none";
+      }
+    }
 
+  }
+}
+</script>

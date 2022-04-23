@@ -4,8 +4,10 @@
         {% include 'head.html' %}
     </head>
     <body>
-        {% include 'nav.html' %}        
-
+        {% include 'nav.html' %}
+        {% if privileges == "project-manager" %}
+            <a class="button" href="statistics/{{ projectId }}">Zobrazit statistiky</a>
+        {% endif %}
         <h2>Stav projektu: {{ project.state }}</h2>
 
         <!-- Admin and project manager can change state of the project -->
@@ -29,8 +31,9 @@
         {% endif %}
 
         <h2>Uživatelé zapojení do projektu {{ project.name }}</h2>
-
-        <table>
+        <input type="text" id="myInput" onkeyup="lookUp()"
+        placeholder="Search in this table">
+        <table id=userProjectTable>
             <tr>
                 <th>ID</th>
                 <th>Jméno</th>
@@ -66,9 +69,11 @@
                 </div>
             </form>
         {% endif %}
-        
+
         <h2>Fáze projektu {{ project.name }}</h2>
-        <table>
+        <input type="text" id="myInput2" onkeyup="lookUp2()"
+        placeholder="Search in phase table">
+        <table id="phaseTable">
             <tr>
                 <th>ID</th>
                 <th>Název</th>
@@ -85,7 +90,7 @@
                 <tr>
                     <th>{{ x.id }}</th>
                     <td>{{ x.name }}</td>
-                    <td>{{ x.description }}</td> 
+                    <td>{{ x.description }}</td>
                     <td>TODO</td>
                     <td>{{ x.participants.all.count }}</td>
                     <td class="center"><a href="phaseDetail/{{ projectId }}/{{ x.id }}">🔎</a></td>
@@ -103,4 +108,45 @@
 
     </body>
 </html>
+<script>
+function lookUp() {
+  var input, filter, table, tr, td, i, txtValue;
+  input = document.getElementById("myInput");
+  filter = input.value.toUpperCase();
+  table = document.getElementById("userProjectTable");
+  tr = table.getElementsByTagName("tr");
+  for (i = 0; i < tr.length; i++) {
+    td = tr[i].getElementsByTagName("td");
+    for (j = 0; j < td.length; j++) {
+      txtValue = tr[i].getElementsByTagName("td")[j].textContent || tr[i].getElementsByTagName("td")[j].innerText;
+      if (txtValue.toUpperCase().indexOf(filter) > -1) {
+        tr[i].style.display = "";
+        break;
+      } else {
+        tr[i].style.display = "none";
+      }
+    }
 
+  }
+}
+function lookUp2() {
+  var input, filter, table, tr, td, i, txtValue;
+  input = document.getElementById("myInput2");
+  filter = input.value.toUpperCase();
+  table = document.getElementById("phaseTable");
+  tr = table.getElementsByTagName("tr");
+  for (i = 0; i < tr.length; i++) {
+    td = tr[i].getElementsByTagName("td");
+    for (j = 0; j < td.length; j++) {
+      txtValue = tr[i].getElementsByTagName("td")[j].textContent || tr[i].getElementsByTagName("td")[j].innerText;
+      if (txtValue.toUpperCase().indexOf(filter) > -1) {
+        tr[i].style.display = "";
+        break;
+      } else {
+        tr[i].style.display = "none";
+      }
+    }
+
+  }
+}
+</script>
