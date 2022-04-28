@@ -19,6 +19,7 @@
                     <textarea name="description" placeholder="Popis rizika"></textarea>
 
                     <select name="category" form="add-risk-form">
+                        <option value="" disabled selected>Vyberte typ rizika</option>
                         <option>Technické riziko</option>
                         <option>Riziko řízení projektu</option>
                         <option>Obchodní riziko</option>
@@ -34,12 +35,14 @@
                     <input type="number" name="probability" placeholder="Pravdepodobnost" value="0"/>
 
                     <select name="impact" form="add-risk-form">
+                        <option value="" disabled selected>Vyberte dopad rizika</option>
                         <option>Small</option>
                         <option>Medium</option>
                         <option>Big</option>
                     </select>
 
                     <select name="state" form="add-risk-form">
+                        <option value="" disabled selected>Vyberte stav rizika</option>
                         <option>Nové</option>
                         <option>Uzavřené</option>
                         <option>Přihodilo se</option>

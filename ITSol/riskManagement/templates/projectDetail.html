@@ -5,9 +5,7 @@
     </head>
     <body>
         {% include 'nav.html' %}
-        {% if privileges == "project-manager" %}
             <a class="button" href="statistics/{{ projectId }}">Zobrazit statistiky</a>
-        {% endif %}
         <h2>Stav projektu: {{ project.state }}</h2>
 
         <!-- Admin and project manager can change state of the project -->
@@ -17,6 +15,7 @@
                 <div style="display: flex;">
                     <div>
                         <select name="state">
+                            <option value="" disabled selected>Vyberte nový stav projektu</option>
                             <option>New</option>
                             <option>In progress</option>
                             <option>Closed</option>
@@ -86,12 +85,12 @@
                     <th></th>
                 {% endif %}
             </tr>
-            {% for x in phases %}
+            {% for x, y in phases %}
                 <tr>
                     <th>{{ x.id }}</th>
                     <td>{{ x.name }}</td>
                     <td>{{ x.description }}</td>
-                    <td>TODO</td>
+                    <td>{{ y }}</td>
                     <td>{{ x.participants.all.count }}</td>
                     <td class="center"><a href="phaseDetail/{{ projectId }}/{{ x.id }}">🔎</a></td>
                     {% if is_user_authorized and is_editable %}

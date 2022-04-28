@@ -18,6 +18,7 @@
                     <input type="text" name="userLogin" value="{{ user.userLogin }}" readonly>
                     <br />
                     <select name="phase">
+                        <option value="" disabled selected>Vyberte fázi</option>
                         {% for x in phases %}
                         <option value="{{x.id}}">{{ x.name }}</option>
                         {% endfor %}

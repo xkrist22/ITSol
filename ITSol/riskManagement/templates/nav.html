@@ -3,10 +3,7 @@
     <img src="{% static 'logo.JPG' %}" alt="Logo ITSol" style="width: 10%;" >
 
     <h1>Systém pro podporu řízení rizik v projektech</h1>
-    <div style=float:right;text-align:right;color:blue">{{user.firstName}}
-    {{user.lastName}}
-    Rola:
-    {{user.privileges}}</div>
+    <div>{{user.firstName}} {{user.lastName}}, role: {{user.privileges}}</div>
 
 </div>
 

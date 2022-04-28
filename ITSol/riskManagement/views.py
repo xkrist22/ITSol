@@ -5,6 +5,7 @@ from .models import User, Risk, Project, Phase
 from django.db.models import Q
 from hashlib import md5
 from .helpers import log_info
+from datetime import datetime
 
 def index(request):
     for key in list(request.session.keys()):
@@ -172,10 +173,19 @@ def saveNewProject(request):
 
 def projects(request):
     projects = Project.objects.filter(Q(foreignKeyManager=request.session["id"]) | Q(members=request.session["id"])).distinct()
+    phases = Phase.objects.all()
+    projectsData = []
+    for proj in projects:
+        phaseCounter = 0
+        for p in phases:
+            if (proj == p.foreignKeyProject):
+                phaseCounter += 1
+        projectsData.append((proj, phaseCounter))    
+
     context = {
-    "user" :  User.objects.get(id=request.session["id"]),
+        "user" :  User.objects.get(id=request.session["id"]),
         "privileges": request.session.get("privileges"),
-        "projects": projects,
+        "projects": projectsData,
     }
     template = loader.get_template("projects.html")
     log_info(request, f"navigation to 'Projects' view")
@@ -197,11 +207,21 @@ def projectDetail(request, id):
     user_is_proj_manager_of_project = Project.objects.get(id=id).foreignKeyManager == User.objects.get(id=request.session["id"])
     user_is_admin = request.session.get("privileges") == "admin"
     is_authorized = user_is_proj_manager_of_project or user_is_admin
+    phases = Phase.objects.filter(foreignKeyProject=id)
+    phasesData = []
+
+    for p in phases:
+        riskCounter = 0
+        for risk in Risk.objects.all():
+            if risk.foreignKeyPhase == p:
+                riskCounter += 1
+        phasesData.append((p, riskCounter))        
+
     context = {
     "user" :  User.objects.get(id=request.session["id"]),
         "privileges": request.session.get("privileges"),
         "users": Project.objects.get(id=id).members.all(),
-        "phases": Phase.objects.filter(foreignKeyProject=id),
+        "phases": phasesData,
         "projectId": id,
         "project": project,
         "is_user_authorized": is_authorized,
@@ -209,6 +229,8 @@ def projectDetail(request, id):
     }
     log_info(request, f"navigation to 'Project detail' view")
     return HttpResponse(template.render(context, request))
+
+
 def statistics(request, id):
     template = loader.get_template("projectStatistics.html")
     project = Project.objects.get(id=id)
@@ -312,13 +334,16 @@ def removePhase(request, phaseId, projectId):
 
 def editPhase(request, phaseId, projectId):
     template = loader.get_template("editPhase.html")
+    phase = Phase.objects.get(id=phaseId)
     context = {
     "user" :  User.objects.get(id=request.session["id"]),
         "privileges": request.session.get("privileges"),
         "canEditProject": Project.objects.get(id=projectId).foreignKeyManager == User.objects.get(id=request.session["id"]),
         "projectId": projectId,
         "phaseId": phaseId,
-        "phase": Phase.objects.get(id=phaseId),
+        "phase": phase,
+        "phaseFrom": str(phase.dateFrom),
+        "phaseTo": str(phase.dateTo),
     }
     log_info(request, f"navigation to 'Edit phase' view from project {projectId}, phase {phaseId}")
     return HttpResponse(template.render(context, request))
@@ -437,11 +462,13 @@ def saveNewRisk(request, projectId, phaseId):
     log_info(request, f"add new risk to project {projectId}, phase {phaseId}")
     return HttpResponseRedirect(f"/riskManagement/projects/projectDetail/phaseDetail/{projectId}/{phaseId}")
 
+
 def removeRisk(request, projectId, phaseId, riskId):
     risk = Risk.objects.get(id=riskId)
     risk.delete()
     log_info(request, f"remove risk {riskId} from project {projectId}, phase {phaseId}")
     return phaseDetail(request, projectId, phaseId)
+
 
 def editRisk(request, projectId, phaseId, riskId):
     template = loader.get_template("editRisk.html")
@@ -454,6 +481,7 @@ def editRisk(request, projectId, phaseId, riskId):
     }
     log_info(request, f"navigation to 'Edit risk' view from project {projectId}, phase {phaseId}, risk {riskId}")
     return HttpResponse(template.render(context, request))
+
 
 def saveEditedRisk(request, projectId, phaseId, riskId):
     risk = Risk.objects.get(id=riskId)
@@ -471,6 +499,7 @@ def saveEditedRisk(request, projectId, phaseId, riskId):
     log_info(request, f"save edited risk {riskId}")
     return HttpResponseRedirect(f"/riskManagement/projects/projectDetail/phaseDetail/{projectId}/{phaseId}")
 
+
 def checkRisk(request, projectId, phaseId, riskId):
     accept = bool(request.GET.get("accept", False))
     risk = Risk.objects.get(id=riskId)
@@ -479,6 +508,7 @@ def checkRisk(request, projectId, phaseId, riskId):
     action_name = "accept" if accept else "reject"
     log_info(request, f"{action_name} risk from project {projectId}, phase {phaseId}, risk {riskId}")
     return phaseDetail(request, projectId, phaseId)
+
 
 def riskDetail(request, projectId, phaseId, riskId):
     template = loader.get_template("riskDetail.html")
@@ -498,7 +528,7 @@ def riskDetail(request, projectId, phaseId, riskId):
             "probability": risk.probability,
             "impact": risk.impact,
             "state": risk.state,
-            "datetime_created": risk.datetime_created
+            "datetime_created": str(risk.datetime_created)
         },
         "project_id": projectId,
         "phase_id": phaseId
