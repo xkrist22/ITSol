@@ -1,6 +1,7 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.urls import reverse
+from numpy import double
 from .models import User, Risk, Project, Phase
 from django.db.models import Q
 from hashlib import md5
@@ -153,7 +154,8 @@ def saveNewProject(request):
         description = request.POST["description"],
         foreignKeyManager = User.objects.get(id=request.POST["foreignKeyManager"]),
         foreignKeyManagerRisk = User.objects.get(id=request.POST["foreignKeyManagerRisk"]),
-        state = "New"
+        state = "New",
+        scale = request.POST["scale"]
     )
     newProject.save()
     newProject.members.add(User.objects.get(id=request.POST["foreignKeyManager"]))
@@ -202,23 +204,25 @@ def removeProject(request, id):
 
 
 def projectDetail(request, id):
+    current_user_id = request.session["id"]
     template = loader.get_template("projectDetail.html")
     project = Project.objects.get(id=id)
-    user_is_proj_manager_of_project = Project.objects.get(id=id).foreignKeyManager == User.objects.get(id=request.session["id"])
+    user_is_proj_manager_of_project = Project.objects.get(id=id).foreignKeyManager == User.objects.get(id=current_user_id)
     user_is_admin = request.session.get("privileges") == "admin"
     is_authorized = user_is_proj_manager_of_project or user_is_admin
     phases = Phase.objects.filter(foreignKeyProject=id)
     phasesData = []
 
-    for p in phases:
+    for phase in phases:
         riskCounter = 0
+        is_my_phase = phase.participants.filter(Q(id=current_user_id)).exists()
         for risk in Risk.objects.all():
-            if risk.foreignKeyPhase == p:
+            if risk.foreignKeyPhase == phase:
                 riskCounter += 1
-        phasesData.append((p, riskCounter))        
+        phasesData.append((phase, riskCounter, is_my_phase))        
 
     context = {
-    "user" :  User.objects.get(id=request.session["id"]),
+    "user" :  User.objects.get(id=current_user_id),
         "privileges": request.session.get("privileges"),
         "users": Project.objects.get(id=id).members.all(),
         "phases": phasesData,
@@ -440,6 +444,17 @@ def addRisk(request, projectId, phaseId):
     log_info(request, f"navigation to 'Add risk' view for project {projectId}, phase {phaseId}")
     return HttpResponse(template.render(context, request))
 
+def get_impact_numeric_value(impact):
+    if impact == 'Katastrofický': return 0.8
+    if impact == 'Kritický': return 0.4
+    if impact == 'Citelný': return 0.2
+    if impact == 'Malý': return 0.1
+    if impact == 'Nepatrný': return 0.05
+    raise Exception("Unknown impact value")
+   
+def calculate_risk_value(probability, impact):
+    impact_num_value = get_impact_numeric_value(impact)
+    return (probability / 100) * impact_num_value
 
 def saveNewRisk(request, projectId, phaseId):
     data = request.POST
@@ -451,13 +466,14 @@ def saveNewRisk(request, projectId, phaseId):
         triggers = data["triggers"],
         reactions = data["reactions"],
         creator = User.objects.get(id=request.session["id"]),
-        probability = data["probability"],
+        probability = float(data["probability"]),
         impact = data["impact"],
         state = data["state"],
         datetime_created = data["datetime_created"],
         foreignKeyPhase = Phase.objects.get(id=phaseId),
         accepted = False
     )
+    risk.value = calculate_risk_value(risk.probability, risk.impact)
     risk.save()
     log_info(request, f"add new risk to project {projectId}, phase {phaseId}")
     return HttpResponseRedirect(f"/riskManagement/projects/projectDetail/phaseDetail/{projectId}/{phaseId}")

@@ -18,6 +18,7 @@ class Project(models.Model):
     foreignKeyManagerRisk = models.ForeignKey(User, on_delete=models.PROTECT, related_name="riskManager")
     members = models.ManyToManyField(User, related_name="members")
     state = models.CharField(max_length=255)
+    scale = models.IntegerField()
 
 
 class Phase(models.Model):
@@ -43,3 +44,4 @@ class Risk(models.Model):
     datetime_created = models.DateField()
     foreignKeyPhase = models.ForeignKey(Phase, on_delete=models.PROTECT)
     accepted = models.BooleanField(default=False)
+    value = models.FloatField()
