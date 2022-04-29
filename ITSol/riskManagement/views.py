@@ -1,6 +1,7 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.urls import reverse
+from numpy import double
 from .models import User, Risk, Project, Phase
 from django.db.models import Q
 from hashlib import md5
@@ -441,6 +442,17 @@ def addRisk(request, projectId, phaseId):
     log_info(request, f"navigation to 'Add risk' view for project {projectId}, phase {phaseId}")
     return HttpResponse(template.render(context, request))
 
+def get_impact_numeric_value(impact):
+    if impact == 'Katastrofický': return 0.8
+    if impact == 'Kritický': return 0.4
+    if impact == 'Citelný': return 0.2
+    if impact == 'Malý': return 0.1
+    if impact == 'Nepatrný': return 0.05
+    raise Exception("Unknown impact value")
+   
+def calculate_risk_value(probability, impact):
+    impact_num_value = get_impact_numeric_value(impact)
+    return (probability / 100) * impact_num_value
 
 def saveNewRisk(request, projectId, phaseId):
     data = request.POST
@@ -452,13 +464,14 @@ def saveNewRisk(request, projectId, phaseId):
         triggers = data["triggers"],
         reactions = data["reactions"],
         creator = User.objects.get(id=request.session["id"]),
-        probability = data["probability"],
+        probability = float(data["probability"]),
         impact = data["impact"],
         state = data["state"],
         datetime_created = data["datetime_created"],
         foreignKeyPhase = Phase.objects.get(id=phaseId),
         accepted = False
     )
+    risk.value = calculate_risk_value(risk.probability, risk.impact)
     risk.save()
     log_info(request, f"add new risk to project {projectId}, phase {phaseId}")
     return HttpResponseRedirect(f"/riskManagement/projects/projectDetail/phaseDetail/{projectId}/{phaseId}")
