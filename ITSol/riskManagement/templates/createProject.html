@@ -8,34 +8,40 @@
 
         {% if privileges == "admin" %}
 
-        <h2>Vytvořit nový projekt</h2>
+            <h2>Vytvořit nový projekt</h2>
 
-        <div class="center">
-            <form action="saveNewProject/" method="post" id="newProject">
-                {% csrf_token %}
-                <input type="text" name="name" placeholder="Jméno projektu">
-                <br />
-                <textarea name="description" placeholder="Popis projektu"></textarea>
-                <br />
-                <select name="foreignKeyManager" form="newProject">
-                    <option value="" disabled selected>Vyberte projektového manažera</option>
-                    {% for x in project_managers %}
-                        <option value="{{ x.id }}">{{x.firstName}} {{x.lastName}}</option>
-                    {% endfor %}
-                </select>
-                <br />
-                <select name="foreignKeyManagerRisk" form="newProject">
-                    <option value="" disabled selected>Vyberte manažer rizik</option>
-                    {% for x in risk_managers %}
-                        <option value="{{ x.id }}">{{x.firstName}} {{x.lastName}}</option>
-                    {% endfor %}
-                </select>
-                <br />
-                <a id="addMemberButton" style="width:85px;" class="button" onclick="addMemberInput()">Přidat člena</a>
-                <input id="memberNum" name="memberNum" type="hidden" value="0">
-                <input type="submit" id="submitButton" value="Vytvořit projekt">            
-            </form>
-        </div>
+            <div class="center">
+                <form action="saveNewProject/" method="post" id="newProject">
+                    {% csrf_token %}
+                    <input type="text" name="name" placeholder="Jméno projektu">
+
+                    <textarea name="description" placeholder="Popis projektu"></textarea>
+
+                    <label for="scale">Počet škál pro rizika</label>
+                    <select id="scale" name="scale" form="newProject">
+                        <option value="3">3</option>
+                        <option value="5">5</option>
+                    </select>
+                    
+                    <select name="foreignKeyManager" form="newProject">
+                        <option value="" disabled selected>Vyberte projektového manažera</option>
+                        {% for x in project_managers %}
+                            <option value="{{ x.id }}">{{x.firstName}} {{x.lastName}}</option>
+                        {% endfor %}
+                    </select>
+
+                    <select name="foreignKeyManagerRisk" form="newProject">
+                        <option value="" disabled selected>Vyberte manažer rizik</option>
+                        {% for x in risk_managers %}
+                            <option value="{{ x.id }}">{{x.firstName}} {{x.lastName}}</option>
+                        {% endfor %}
+                    </select>
+
+                    <a id="addMemberButton" style="width:85px;" class="button" onclick="addMemberInput()">Přidat člena</a>
+                    <input id="memberNum" name="memberNum" type="hidden" value="0">
+                    <input type="submit" id="submitButton" value="Vytvořit projekt">            
+                </form>
+            </div>
 
         {% else %}
             Nemáte dostatečné oprávnění pro zobrazení modulu

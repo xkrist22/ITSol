@@ -153,7 +153,8 @@ def saveNewProject(request):
         description = request.POST["description"],
         foreignKeyManager = User.objects.get(id=request.POST["foreignKeyManager"]),
         foreignKeyManagerRisk = User.objects.get(id=request.POST["foreignKeyManagerRisk"]),
-        state = "New"
+        state = "New",
+        scale = request.POST["scale"]
     )
     newProject.save()
     newProject.members.add(User.objects.get(id=request.POST["foreignKeyManager"]))
