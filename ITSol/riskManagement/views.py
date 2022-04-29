@@ -204,23 +204,25 @@ def removeProject(request, id):
 
 
 def projectDetail(request, id):
+    current_user_id = request.session["id"]
     template = loader.get_template("projectDetail.html")
     project = Project.objects.get(id=id)
-    user_is_proj_manager_of_project = Project.objects.get(id=id).foreignKeyManager == User.objects.get(id=request.session["id"])
+    user_is_proj_manager_of_project = Project.objects.get(id=id).foreignKeyManager == User.objects.get(id=current_user_id)
     user_is_admin = request.session.get("privileges") == "admin"
     is_authorized = user_is_proj_manager_of_project or user_is_admin
     phases = Phase.objects.filter(foreignKeyProject=id)
     phasesData = []
 
-    for p in phases:
+    for phase in phases:
         riskCounter = 0
+        is_my_phase = phase.participants.filter(Q(id=current_user_id)).exists()
         for risk in Risk.objects.all():
-            if risk.foreignKeyPhase == p:
+            if risk.foreignKeyPhase == phase:
                 riskCounter += 1
-        phasesData.append((p, riskCounter))        
+        phasesData.append((phase, riskCounter, is_my_phase))        
 
     context = {
-    "user" :  User.objects.get(id=request.session["id"]),
+    "user" :  User.objects.get(id=current_user_id),
         "privileges": request.session.get("privileges"),
         "users": Project.objects.get(id=id).members.all(),
         "phases": phasesData,

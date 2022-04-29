@@ -85,21 +85,27 @@
                     <th></th>
                 {% endif %}
             </tr>
-            {% for x, y in phases %}
+            {% for phase, risks_count, is_my_phase in phases %}
                 <tr>
-                    <th>{{ x.id }}</th>
-                    <td>{{ x.name }}</td>
-                    <td>{{ x.description }}</td>
-                    <td>{{ y }}</td>
-                    <td>{{ x.participants.all.count }}</td>
-                    <td class="center"><a href="phaseDetail/{{ projectId }}/{{ x.id }}">🔎</a></td>
+                    {% if is_my_phase %}
+                        <th style="background-color: yellowgreen; color: black;" >{{ phase.id }}</th>
+                    {% else %}
+                        <th>{{ phase.id }}</th>
+                    {% endif %}
+                    <td>{{ phase.name }}</td>
+                    <td>{{ phase.description }}</td>
+                    <td>{{ risks_count }}</td>
+                    <td>{{ phase.participants.all.count }}</td>
+                    <td class="center"><a href="phaseDetail/{{ projectId }}/{{ phase.id }}">🔎</a></td>
                     {% if is_user_authorized and is_editable %}
-                        <td class="center"><a href="editPhase/{{ x.id }}/{{ projectId }}">✏️</a></td>
-                        <td class="center"><a href="removePhase/{{ x.id }}/{{projectId }}">🗑️</a></td>
+                        <td class="center"><a href="editPhase/{{ phase.id }}/{{ projectId }}">✏️</a></td>
+                        <td class="center"><a href="removePhase/{{ phase.id }}/{{projectId }}">🗑️</a></td>
                     {% endif %}
                 </tr>
             {% endfor %}
         </table>
+        
+        <h5 style="margin-left: 30px;">* Zeleně zvýrazněny jsou vaše fáze</h5>
 
         {% if is_user_authorized and is_editable %}
             <a class="button" href="addPhase/{{projectId}}">Přidat fázi</a>
