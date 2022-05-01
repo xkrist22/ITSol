@@ -5,11 +5,13 @@
     </head>
     <body>
         {% include 'nav.html' %}
-
+        {% if project_id %}
         <a class="button" href="/riskManagement/projects/projectDetail/phaseDetail/{{ project_id }}/{{ phase_id }}">
             &#x2190; Spátky na fázy
         </a>
-
+        {% else %}
+        <a class="button" onclick="history.back()">  &#x2190; Spátky na statistiky</a>
+        {% endif %}
         <h2>Risk detail</h2>
         <div class="center">
             <form>
@@ -20,7 +22,7 @@
                 <input type="text" id="creator" value="{{ risk.creator }}" readonly />
 
                 <h4>
-                    Accepted: 
+                    Accepted:
                     {% if risk.acceted %}
                         ✔️
                     {% else %}

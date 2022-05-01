@@ -1,3 +1,10 @@
+<style>
+.critical td{
+  background: red;
+}
+
+
+</style>
 <!DOCTYPE html>
 <html>
     <head>
@@ -85,8 +92,12 @@
                     <th></th>
                 {% endif %}
             </tr>
-            {% for phase, risks_count, is_my_phase in phases %}
-                <tr>
+            {% for phase, risks_count, is_my_phase, critical in phases %}
+                {% if critical %}
+                  <tr class="critical">
+                {% else %}
+                    <tr>
+                {% endif %}
                     {% if is_my_phase %}
                         <th style="background-color: yellowgreen; color: black;" >{{ phase.id }}</th>
                     {% else %}
@@ -104,7 +115,7 @@
                 </tr>
             {% endfor %}
         </table>
-        
+
         <div style="margin-left: 30px;">
             <h5>* Zeleně zvýrazněny jsou vaše fáze</h5>
             <h5>* Počet škál využívaných při hodnocení rizik: {{ project.scale }}</h5>
