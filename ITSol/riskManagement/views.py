@@ -265,6 +265,8 @@ def statistics(request, id):
         labels.append(p.name)
         counter = 0
         for r in risk:
+            print(r.impact)
+            print(r.probability)
             counter += 1
             if r.impact == "Big":
                 tmp["big"] = tmp["big"] + 1
@@ -285,6 +287,8 @@ def statistics(request, id):
             tmp["prob"] = tmp["prob"] * (r.probability / 100)
         ph.append(tmp)
         data.append(counter)
+    print(risks)
+
     context = {
     "labels" : labels,
     "data" : data,
