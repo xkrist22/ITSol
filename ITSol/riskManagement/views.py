@@ -159,6 +159,7 @@ def saveNewProject(request):
     )
     newProject.save()
     newProject.members.add(User.objects.get(id=request.POST["foreignKeyManager"]))
+    newProject.members.add(User.objects.get(id=request.POST["foreignKeyManagerRisk"]))
 
     for i in range(int(request.POST["memberNum"])):
         memberLogin = request.POST["member{}".format(i)]
