@@ -445,7 +445,8 @@ def phaseDetail(request, projectId, phaseId):
     privileges = request.session["privileges"]
     project = Project.objects.get(id=projectId)
     is_phase_editable = project.state != "Closed" and project.state != "Canceled"
-    is_authorized_to_edit = Phase.objects.filter(Q(id=phaseId) & Q(participants__id=current_user_id)).exists() and (privileges == "project-manager" or privileges == "risk-manager")
+    # is_authorized_to_edit = Phase.objects.filter(Q(id=phaseId) & Q(participants__id=current_user_id)).exists() and (privileges == "project-manager" or privileges == "risk-manager")
+    is_authorized_to_edit = Phase.objects.filter(Q(id=phaseId) & Q(participants__id=current_user_id)).exists()
     is_authorized_to_approve_risk = Project.objects.get(id=projectId).foreignKeyManagerRisk == User.objects.get(id=current_user_id)
 
     template = loader.get_template("phaseDetail.html")
