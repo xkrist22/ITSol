@@ -342,7 +342,7 @@ for (var i = 0, row; row = table.rows[i]; i++) {
         aTag.setAttribute('href',"risksDetail/{{x.id}}");
         aTag.innerText = "{{x.name}}" + "\n";
         div.appendChild(aTag);     }
-     else if(i == 1 && j == 5 && "{{x.impact}}" == "Katastrofický" && {{x.probability}} > 10 && {{x.probability}} <= 30){
+     else if(i == 1 && j == 5 && "{{x.impact}}" == "Katastrofický"  && {{x.probability}} <= 30){
        var aTag = document.createElement('a');
         aTag.setAttribute('href',"risksDetail/{{x.id}}");
         aTag.innerText = "{{x.name}}" + "\n";
@@ -367,7 +367,7 @@ for (var i = 0, row; row = table.rows[i]; i++) {
         aTag.setAttribute('href',"risksDetail/{{x.id}}");
         aTag.innerText = "{{x.name}}" + "\n";
         div.appendChild(aTag);     }
-     else if(i == 2 && j == 5 && "{{x.impact}}" == "Kritický" && {{x.probability}} > 10 && {{x.probability}} <= 30){
+     else if(i == 2 && j == 5 && "{{x.impact}}" == "Kritický"  && {{x.probability}} <= 30){
        var aTag = document.createElement('a');
         aTag.setAttribute('href',"risksDetail/{{x.id}}");
         aTag.innerText = "{{x.name}}" + "\n";
@@ -392,7 +392,7 @@ for (var i = 0, row; row = table.rows[i]; i++) {
         aTag.setAttribute('href',"risksDetail/{{x.id}}");
         aTag.innerText = "{{x.name}}" + "\n";
         div.appendChild(aTag);     }
-     else if(i == 3 && j == 5 && "{{x.impact}}" == "Citelný" && {{x.probability}} > 10 && {{x.probability}} <= 30){
+     else if(i == 3 && j == 5 && "{{x.impact}}" == "Citelný"  && {{x.probability}} <= 30){
        var aTag = document.createElement('a');
         aTag.setAttribute('href',"risksDetail/{{x.id}}");
         aTag.innerText = "{{x.name}}" + "\n";
@@ -417,7 +417,7 @@ for (var i = 0, row; row = table.rows[i]; i++) {
         aTag.setAttribute('href',"risksDetail/{{x.id}}");
         aTag.innerText = "{{x.name}}" + "\n";
         div.appendChild(aTag);     }
-     else if(i == 4 && j == 5 && "{{x.impact}}" == "Malý" && {{x.probability}} > 10 && {{x.probability}} <= 30){
+     else if(i == 4 && j == 5 && "{{x.impact}}" == "Malý"  && {{x.probability}} <= 30){
        var aTag = document.createElement('a');
         aTag.setAttribute('href',"risksDetail/{{x.id}}");
         aTag.innerText = "{{x.name}}" + "\n";
@@ -442,7 +442,7 @@ for (var i = 0, row; row = table.rows[i]; i++) {
         aTag.setAttribute('href',"risksDetail/{{x.id}}");
         aTag.innerText = "{{x.name}}" + "\n";
         div.appendChild(aTag);     }
-     else if(i == 5 && j == 5 && "{{x.impact}}" == "Nepatrný" && {{x.probability}} > 10 && {{x.probability}} <= 30){
+     else if(i == 5 && j == 5 && "{{x.impact}}" == "Nepatrný"  && {{x.probability}} <= 30){
        var aTag = document.createElement('a');
         aTag.setAttribute('href',"risksDetail/{{x.id}}");
         aTag.innerText = "{{x.name}}" + "\n";
@@ -463,7 +463,7 @@ for (var i = 0, row; row = table.rows[i]; i++) {
         datasets: [{
           data: {{ data|safe }},
           backgroundColor: [
-            "blue", "red", "green", "orange", "yellow"
+            "blue", "red","aqua", "green", "orange", "yellow", "purple", "brown", "black", "aqua"
           ],
           label: 'Population'
         }],
