@@ -1,5 +1,29 @@
 <!DOCTYPE html>
+<style>
+#mat {
+  width: 100%;
+  max-width: 1700px;
+  table-layout: fixed;
+}
+#mat th {
+  min-height: 40px;
+  font-size: 30px;
+}
+#mat td{
+  max-width: 283px;
 
+  overflow: scroll;
+   white-space: nowrap;
+   height: 80px;
+}
+div.scrollable {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: auto;
+}
+</style>
 <html>
 {% load template_filters %}
     <head>
@@ -17,6 +41,7 @@
             <div class="center">
               <select name="Statistiky" id="stat">
                 <option value="" disabled selected>Vyberte požadované statistiky</option>
+                <option value="mati">Matica rizik</option>
                 <option value="fazy">Štatistiky pre fazy</option>
                 <option value="technical">Štatistiky pre technické riziká</option>
                 <option value="riadene">Štatistiky pre riziká riadenia projektu</option>
@@ -27,8 +52,64 @@
                   Zobrazit
               </a>
             </div>
+
+
+<table id="mat" style="display:none;">
+  <tr>
+    <td></td>
+    <th scope="col">Mimořádná</th>
+    <th scope="col">Velká</th>
+    <th scope="col">Střední</th>
+    <th scope="col">Malá</th>
+    <th scope="col">Nepatrná</th>
+  </tr>
+  <tr>
+    <th scope="row">Katastrofický</th>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <th scope="row">Kritický</th>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <th scope="row">Citelný</th>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <th scope="row">Malý</th>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <th scope="row">Nepatrný</th>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+</table>
+
+
+            {% if scale == 3 %}
             <table id="fazTable" style="display:none">
                 <tr>
+                    <th> Datum vygenerovania </th>
                     <th>Nazov</th>
                     <th>Počet rizík s veľkým impaktom</th>
                     <th>Počet rizík so stredným impaktom</th>
@@ -38,6 +119,7 @@
                 </tr>
                 {% for x in fazy %}
                 <tr>
+                  <td> {{date}} </td>
                   <td>{{ x|get_item:"name" }}</td>
                   <td>{{ x|get_item:"big" }}</td>
                   <td>{{ x|get_item:"med" }}</td>
@@ -47,68 +129,114 @@
                 </tr>
                 {% endfor %}
             </table>
-            <table id="techTable" style="display:none">
+            {% else %}
+            <table id="fazTable" style="display:none">
                 <tr>
+                    <th> Datum vygenerovania </th>
+                    <th>Nazov</th>
+                    <th>Počet rizík s katastrofickým impaktom</th>
+                    <th>Počet rizík so kritickým impaktom</th>
+                    <th>Počet rizík s citlým impaktom</th>
+                    <th>Počet rizík s malým impaktom</th>
+                    <th>Počet rizík s nepatrným impaktom</th>
+                    <th>Pravdepodobnosť rizík</th>
+                    <th>Počet ľudí</th>
+                </tr>
+                {% for x in fazy %}
+                <tr>
+                  <td> {{date}} </td>
+                  <td>{{ x|get_item:"name" }}</td>
+                  <td>{{ x|get_item:"kat" }}</td>
+                  <td>{{ x|get_item:"kri" }}</td>
+                  <td>{{ x|get_item:"cit" }}</td>
+                  <td>{{ x|get_item:"mal" }}</td>
+                  <td>{{ x|get_item:"nep" }}</td>
+                  <td>{{ x|get_item:"prob" }}</td>
+                  <td>{{ x|get_item:"mem" }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+            {% endif %}
+            <div id="container" style="width: 75%; display:none;">
+              <canvas id="pie-chart"></canvas>
+            </div>
+            <table id="techTable" style="display:none">
+                <tr> <th> Datum vygenerovania </th>
                     <th>Kategória</th>
                     <th>Impakt</th>
                     <th>Pravdepodobnost</th>
                 </tr>
-                {% for x in risks %}
+                {% for y in risks %}
+                {% for x in y %}
                 {% if x.category == 'Technické riziko' %}
                 <tr>
+                    <td> {{date}} </td>
                   <td>{{x.category}}</td>
                   <td>{{x.impact}}</td>
                   <td>{{x.probability}}</td>
                 </tr>
                 {% endif %}
+                {% endfor %}
                 {% endfor %}
             </table>
             <table id="riadTable" style="display:none">
                 <tr>
+                    <th> Datum vygenerovania </th>
                     <th>Kategória</th>
                     <th>Impakt</th>
                     <th>Pravdepodobnost</th>
                 </tr>
-                {% for x in risks %}
+                {% for y in risks %}
+                {% for x in y %}
                 {% if x.category == 'Riziko řízení projektu' %}
                 <tr>
+                    <td> {{date}} </td>
                   <td>{{x.category}}</td>
                   <td>{{x.impact}}</td>
                   <td>{{x.probability}}</td>
                 </tr>
                 {% endif %}
+                {% endfor %}
                 {% endfor %}
             </table>
             <table id="obchTable" style="display:none">
                 <tr>
+                    <th> Datum vygenerovania </th>
                     <th>Kategória</th>
                     <th>Impakt</th>
                     <th>Pravdepodobnost</th>
                 </tr>
-                {% for x in risks %}
+                {% for y in risks %}
+                {% for x in y %}
                 {% if x.category == 'Obchodní riziko' %}
                 <tr>
+                    <td> {{date}} </td>
                   <td>{{x.category}}</td>
                   <td>{{x.impact}}</td>
                   <td>{{x.probability}}</td>
                 </tr>
                 {% endif %}
                 {% endfor %}
+                {% endfor %}
             </table>
             <table id="extTable" style="display:none">
                 <tr>
+                    <th> Datum vygenerovania </th>
                     <th>Kategória</th>
                     <th>Impakt</th>
                     <th>Pravdepodobnost</th>
                 </tr>
-                {% for x in risks %}
+                {% for y in risks %}
+                {% for x in y %}
                 {% if x.category == 'Externí riziko' %}
                 <tr>
+                    <td> {{date}} </td>
                   <td>{{x.category}}</td>
                   <td>{{x.impact}}</td>
                   <td>{{x.probability}}</td>
                 </tr>
                 {% endif %}
+                {% endfor %}
                 {% endfor %}
             </table>
 
@@ -124,6 +252,17 @@ function show(){
     document.getElementById("techTable").style.display="";
     document.getElementById("riadTable").style.display="none";
     document.getElementById("obchTable").style.display="none";
+    document.getElementById("container").style.display="none";
+    document.getElementById("mat").style.display="none";
+    document.getElementById("extTable").style.display="none";
+  }
+  else if (val == "mati"){
+    document.getElementById("fazTable").style.display="none";
+    document.getElementById("techTable").style.display="none";
+    document.getElementById("mat").style.display="";
+    document.getElementById("obchTable").style.display="none";
+    document.getElementById("container").style.display="none";
+
     document.getElementById("extTable").style.display="none";
   }
   else if (val == "riadene"){
@@ -131,6 +270,9 @@ function show(){
     document.getElementById("techTable").style.display="none";
     document.getElementById("riadTable").style.display="";
     document.getElementById("obchTable").style.display="none";
+    document.getElementById("container").style.display="none";
+    document.getElementById("mat").style.display="none";
+
     document.getElementById("extTable").style.display="none";
   }
   else if (val == "store"){
@@ -139,6 +281,9 @@ function show(){
     document.getElementById("riadTable").style.display="none";
     document.getElementById("obchTable").style.display="";
     document.getElementById("extTable").style.display="none";
+    document.getElementById("container").style.display="none";
+    document.getElementById("mat").style.display="none";
+
   }
   else if (val == "external"){
     document.getElementById("fazTable").style.display="none";
@@ -146,13 +291,193 @@ function show(){
     document.getElementById("riadTable").style.display="none";
     document.getElementById("obchTable").style.display="none";
     document.getElementById("extTable").style.display="";
+    document.getElementById("container").style.display="none";    document.getElementById("mat").style.display="none";
+
   }
   else if (val == "fazy"){
     document.getElementById("fazTable").style.display="";
+    document.getElementById("container").style.display="";
     document.getElementById("techTable").style.display="none";
     document.getElementById("riadTable").style.display="none";
     document.getElementById("obchTable").style.display="none";
     document.getElementById("extTable").style.display="none";
+    document.getElementById("mat").style.display="none";
+
   }
 }
 </script>
+<script>
+var table = document.getElementById('mat');
+
+for (var i = 0, row; row = table.rows[i]; i++) {
+   //iterate through rows
+   //rows would be accessed using the "row" variable assigned in the for loop
+   for (var j = 0, col; col = row.cells[j]; j++) {
+     //iterate through columns
+     //columns would be accessed using the "col" variable assigned in the for loop
+     var div = document.createElement("div");
+
+     let text = "";
+     div.classList.add("scrollable");
+     {% for y in risks %}
+     {% for x in y %}
+     if(i == 1 && j == 1 && "{{x.impact}}" == "Katastrofický" && {{x.probability}} > 90){
+       var aTag = document.createElement('a');
+        aTag.setAttribute('href',"risksDetail/{{x.id}}");
+        aTag.innerText = "{{x.name}}" + "\n";
+        div.appendChild(aTag);
+     }
+     else if(i == 1 && j == 2 && "{{x.impact}}" == "Katastrofický" && {{x.probability}} > 70 && {{x.probability}} <= 90){
+       var aTag = document.createElement('a');
+        aTag.setAttribute('href',"risksDetail/{{x.id}}");
+        aTag.innerText = "{{x.name}}" + "\n";
+        div.appendChild(aTag);     }
+     else if(i == 1 && j == 3 && "{{x.impact}}" == "Katastrofický" && {{x.probability}} > 50 && {{x.probability}} <= 70){
+       var aTag = document.createElement('a');
+        aTag.setAttribute('href',"risksDetail/{{x.id}}");
+        aTag.innerText = "{{x.name}}" + "\n";
+        div.appendChild(aTag);     }
+     else if(i == 1 && j == 4 && "{{x.impact}}" == "Katastrofický" && {{x.probability}} > 30 && {{x.probability}} <= 50){
+       var aTag = document.createElement('a');
+        aTag.setAttribute('href',"risksDetail/{{x.id}}");
+        aTag.innerText = "{{x.name}}" + "\n";
+        div.appendChild(aTag);     }
+     else if(i == 1 && j == 5 && "{{x.impact}}" == "Katastrofický"  && {{x.probability}} <= 30){
+       var aTag = document.createElement('a');
+        aTag.setAttribute('href',"risksDetail/{{x.id}}");
+        aTag.innerText = "{{x.name}}" + "\n";
+        div.appendChild(aTag);     }
+     if(i == 2 && j == 1 && "{{x.impact}}" == "Kritický" && {{x.probability}} > 90){
+       var aTag = document.createElement('a');
+        aTag.setAttribute('href',"risksDetail/{{x.id}}");
+        aTag.innerText = "{{x.name}}" + "\n";
+        div.appendChild(aTag);     }
+     else if(i == 2 && j == 2 && "{{x.impact}}" == "Kritický" && {{x.probability}} > 70 && {{x.probability}} <= 90){
+       var aTag = document.createElement('a');
+        aTag.setAttribute('href',"risksDetail/{{x.id}}");
+        aTag.innerText = "{{x.name}}" + "\n";
+        div.appendChild(aTag);     }
+     else if(i == 2 && j == 3 && "{{x.impact}}" == "Kritický" && {{x.probability}} > 50 && {{x.probability}} <= 70){
+       var aTag = document.createElement('a');
+        aTag.setAttribute('href',"risksDetail/{{x.id}}");
+        aTag.innerText = "{{x.name}}" + "\n";
+        div.appendChild(aTag);     }
+     else if(i == 2 && j == 4 && "{{x.impact}}" == "Kritický" && {{x.probability}} > 30 && {{x.probability}} <= 50){
+       var aTag = document.createElement('a');
+        aTag.setAttribute('href',"risksDetail/{{x.id}}");
+        aTag.innerText = "{{x.name}}" + "\n";
+        div.appendChild(aTag);     }
+     else if(i == 2 && j == 5 && "{{x.impact}}" == "Kritický"  && {{x.probability}} <= 30){
+       var aTag = document.createElement('a');
+        aTag.setAttribute('href',"risksDetail/{{x.id}}");
+        aTag.innerText = "{{x.name}}" + "\n";
+        div.appendChild(aTag);     }
+     if(i == 3 && j == 1 && "{{x.impact}}" == "Citelný" && {{x.probability}} > 90){
+       var aTag = document.createElement('a');
+        aTag.setAttribute('href',"risksDetail/{{x.id}}");
+        aTag.innerText = "{{x.name}}" + "\n";
+        div.appendChild(aTag);     }
+     else if(i == 3 && j == 2 && "{{x.impact}}" == "Citelný" && {{x.probability}} > 70 && {{x.probability}} <= 90){
+       var aTag = document.createElement('a');
+        aTag.setAttribute('href',"risksDetail/{{x.id}}");
+        aTag.innerText = "{{x.name}}" + "\n";
+        div.appendChild(aTag);     }
+     else if(i == 3 && j == 3 && "{{x.impact}}" == "Citelný" && {{x.probability}} > 50 && {{x.probability}} <= 70){
+       var aTag = document.createElement('a');
+        aTag.setAttribute('href',"risksDetail/{{x.id}}");
+        aTag.innerText = "{{x.name}}" + "\n";
+        div.appendChild(aTag);     }
+     else if(i == 3 && j == 4 && "{{x.impact}}" == "Citelný" && {{x.probability}} > 30 && {{x.probability}} <= 50){
+       var aTag = document.createElement('a');
+        aTag.setAttribute('href',"risksDetail/{{x.id}}");
+        aTag.innerText = "{{x.name}}" + "\n";
+        div.appendChild(aTag);     }
+     else if(i == 3 && j == 5 && "{{x.impact}}" == "Citelný"  && {{x.probability}} <= 30){
+       var aTag = document.createElement('a');
+        aTag.setAttribute('href',"risksDetail/{{x.id}}");
+        aTag.innerText = "{{x.name}}" + "\n";
+        div.appendChild(aTag);     }
+     if(i == 4 && j == 1 && "{{x.impact}}" == "Malý" && {{x.probability}} > 90){
+       var aTag = document.createElement('a');
+        aTag.setAttribute('href',"risksDetail/{{x.id}}");
+        aTag.innerText = "{{x.name}}" + "\n";
+        div.appendChild(aTag);     }
+     else if(i == 4 && j == 2 && "{{x.impact}}" == "Malý" && {{x.probability}} > 70 && {{x.probability}} <= 90){
+       var aTag = document.createElement('a');
+        aTag.setAttribute('href',"risksDetail/{{x.id}}");
+        aTag.innerText = "{{x.name}}" + "\n";
+        div.appendChild(aTag);     }
+     else if(i == 4 && j == 3 && "{{x.impact}}" == "Malý" && {{x.probability}} > 50 && {{x.probability}} <= 70){
+       var aTag = document.createElement('a');
+        aTag.setAttribute('href',"risksDetail/{{x.id}}");
+        aTag.innerText = "{{x.name}}" + "\n";
+        div.appendChild(aTag);     }
+     else if(i == 4 && j == 4 && "{{x.impact}}" == "Malý" && {{x.probability}} > 30 && {{x.probability}} <= 50){
+       var aTag = document.createElement('a');
+        aTag.setAttribute('href',"risksDetail/{{x.id}}");
+        aTag.innerText = "{{x.name}}" + "\n";
+        div.appendChild(aTag);     }
+     else if(i == 4 && j == 5 && "{{x.impact}}" == "Malý"  && {{x.probability}} <= 30){
+       var aTag = document.createElement('a');
+        aTag.setAttribute('href',"risksDetail/{{x.id}}");
+        aTag.innerText = "{{x.name}}" + "\n";
+        div.appendChild(aTag);     }
+     if(i == 5 && j == 1 && "{{x.impact}}" == "Nepatrný" && {{x.probability}} > 90){
+       var aTag = document.createElement('a');
+        aTag.setAttribute('href',"risksDetail/{{x.id}}");
+        aTag.innerText = "{{x.name}}" + "\n";
+        div.appendChild(aTag);     }
+     else if(i == 5 && j == 2 && "{{x.impact}}" == "Nepatrný" && {{x.probability}} > 70 && {{x.probability}} <= 90){
+       var aTag = document.createElement('a');
+        aTag.setAttribute('href',"risksDetail/{{x.id}}");
+        aTag.innerText = "{{x.name}}" + "\n";
+        div.appendChild(aTag);     }
+     else if(i == 5 && j == 3 && "{{x.impact}}" == "Nepatrný" && {{x.probability}} > 50 && {{x.probability}} <= 70){
+       var aTag = document.createElement('a');
+        aTag.setAttribute('href',"risksDetail/{{x.id}}");
+        aTag.innerText = "{{x.name}}" + "\n";
+        div.appendChild(aTag);     }
+     else if(i == 5 && j == 4 && "{{x.impact}}" == "Nepatrný" && {{x.probability}} > 30 && {{x.probability}} <= 50){
+       var aTag = document.createElement('a');
+        aTag.setAttribute('href',"risksDetail/{{x.id}}");
+        aTag.innerText = "{{x.name}}" + "\n";
+        div.appendChild(aTag);     }
+     else if(i == 5 && j == 5 && "{{x.impact}}" == "Nepatrný"  && {{x.probability}} <= 30){
+       var aTag = document.createElement('a');
+        aTag.setAttribute('href',"risksDetail/{{x.id}}");
+        aTag.innerText = "{{x.name}}" + "\n";
+        div.appendChild(aTag);     }
+     col.appendChild(div);
+     {% endfor %}
+     {% endfor %}
+   }
+}
+
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+  <script>
+
+    var config = {
+      type: 'pie',
+      data: {
+        datasets: [{
+          data: {{ data|safe }},
+          backgroundColor: [
+            "blue", "red","aqua", "green", "orange", "yellow", "purple", "brown", "black", "aqua"
+          ],
+          label: 'Population'
+        }],
+        labels: {{ labels|safe }}
+      },
+      options: {
+        responsive: true
+      }
+    };
+
+
+    window.onload = function() {
+      var ctx = document.getElementById('pie-chart').getContext('2d');
+      window.myPie = new Chart(ctx, config);
+    };
+
+  </script>

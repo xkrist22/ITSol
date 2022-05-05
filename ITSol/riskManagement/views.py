@@ -6,7 +6,7 @@ from .models import User, Risk, Project, Phase
 from django.db.models import Q
 from hashlib import md5
 from .helpers import log_info
-from datetime import datetime
+import datetime
 
 def index(request):
     for key in list(request.session.keys()):
@@ -159,6 +159,7 @@ def saveNewProject(request):
     )
     newProject.save()
     newProject.members.add(User.objects.get(id=request.POST["foreignKeyManager"]))
+    newProject.members.add(User.objects.get(id=request.POST["foreignKeyManagerRisk"]))
 
     for i in range(int(request.POST["memberNum"])):
         memberLogin = request.POST["member{}".format(i)]
@@ -182,7 +183,7 @@ def projects(request):
         for p in phases:
             if (proj == p.foreignKeyProject):
                 phaseCounter += 1
-        projectsData.append((proj, phaseCounter))    
+        projectsData.append((proj, phaseCounter))
 
     context = {
         "user" :  User.objects.get(id=request.session["id"]),
@@ -215,12 +216,16 @@ def projectDetail(request, id):
 
     for phase in phases:
         riskCounter = 0
+        critical = False
         is_my_phase = phase.participants.filter(Q(id=current_user_id)).exists()
         for risk in Risk.objects.all():
             if risk.foreignKeyPhase == phase:
+                if risk.impact == "Big":
+                    critical = True
+                if risk.impact == "Katastrofický":
+                    critical = True
                 riskCounter += 1
-        phasesData.append((phase, riskCounter, is_my_phase))        
-
+        phasesData.append((phase, riskCounter, is_my_phase, critical))
     context = {
     "user" :  User.objects.get(id=current_user_id),
         "privileges": request.session.get("privileges"),
@@ -240,26 +245,56 @@ def statistics(request, id):
     project = Project.objects.get(id=id)
     phases = Phase.objects.filter(foreignKeyProject=id)
     ph = []
+    risks = []
+    labels = []
+    data = []
     for p in phases:
         tmp = {}
         tmp["name"] = p.name
         tmp["big"] = 0
         tmp["med"] = 0
         tmp["sma"] = 0
+        tmp["kat"] = 0
+        tmp["kri"] = 0
+        tmp["cit"] = 0
+        tmp["mal"] = 0
+        tmp["nep"] = 0
         tmp["prob"] = 1.0
         tmp["mem"] = p.participants.all().count()
         risk = Risk.objects.filter(foreignKeyPhase=p.id)
+        risks.append(risk)
+        labels.append(p.name)
+        counter = 0
         for r in risk:
+            print(r.impact)
+            print(r.probability)
+            counter += 1
             if r.impact == "Big":
                 tmp["big"] = tmp["big"] + 1
             if r.impact == "Small":
                 tmp["med"] = tmp["med"] + 1
             if r.impact == "Medium":
                 tmp["sma"] = tmp["sma"] + 1
+            if r.impact == "Katastrofický":
+                tmp["kat"] = tmp["kat"] + 1
+            if r.impact == "Kritický":
+                tmp["kri"] = tmp["kri"] + 1
+            if r.impact == "Citelný":
+                tmp["cit"] = tmp["cit"] + 1
+            if r.impact == "Malý":
+                tmp["mal"] = tmp["mal"] + 1
+            if r.impact == "Nepatrný":
+                tmp["nep"] = tmp["nep"] + 1
             tmp["prob"] = tmp["prob"] * (r.probability / 100)
         ph.append(tmp)
-    risks = Risk.objects.all()
+        data.append(counter)
+    print(risks)
+
     context = {
+    "labels" : labels,
+    "data" : data,
+    "scale" : project.scale,
+    "date" : datetime.date.today(),
     "fazy" : ph,
     "risks" : risks,
     "user" :  User.objects.get(id=request.session["id"]),
@@ -410,7 +445,8 @@ def phaseDetail(request, projectId, phaseId):
     privileges = request.session["privileges"]
     project = Project.objects.get(id=projectId)
     is_phase_editable = project.state != "Closed" and project.state != "Canceled"
-    is_authorized_to_edit = Phase.objects.filter(Q(id=phaseId) & Q(participants__id=current_user_id)).exists() and (privileges == "project-manager" or privileges == "risk-manager")
+    # is_authorized_to_edit = Phase.objects.filter(Q(id=phaseId) & Q(participants__id=current_user_id)).exists() and (privileges == "project-manager" or privileges == "risk-manager")
+    is_authorized_to_edit = Phase.objects.filter(Q(id=phaseId) & Q(participants__id=current_user_id)).exists()
     is_authorized_to_approve_risk = Project.objects.get(id=projectId).foreignKeyManagerRisk == User.objects.get(id=current_user_id)
 
     template = loader.get_template("phaseDetail.html")
@@ -451,7 +487,7 @@ def get_impact_numeric_value(impact):
     if impact == 'Malý': return 0.1
     if impact == 'Nepatrný': return 0.05
     raise Exception("Unknown impact value")
-   
+
 def calculate_risk_value(probability, impact):
     impact_num_value = get_impact_numeric_value(impact)
     return (probability / 100) * impact_num_value
@@ -502,18 +538,23 @@ def editRisk(request, projectId, phaseId, riskId):
 def saveEditedRisk(request, projectId, phaseId, riskId):
     risk = Risk.objects.get(id=riskId)
     data = request.POST
-    risk.name = data["name"]
-    risk.description = data["description"]
-    risk.category = data["category"]
-    risk.threat = data["threat"]
-    risk.triggers = data["triggers"]
-    risk.reactions = data["reactions"]
-    risk.probability = data["probability"]
-    risk.impact = data["impact"]
-    risk.state = data["state"]
-    risk.save()
-    log_info(request, f"save edited risk {riskId}")
-    return HttpResponseRedirect(f"/riskManagement/projects/projectDetail/phaseDetail/{projectId}/{phaseId}")
+    try:
+        risk.name = data["name"]
+        risk.description = data["description"]
+        risk.category = data["category"]
+        risk.threat = data["threat"]
+        risk.triggers = data["triggers"]
+        risk.reactions = data["reactions"]
+        risk.probability = data["probability"]
+        risk.impact = data["impact"]
+        risk.state = data["state"]
+        risk.save()
+        log_info(request, f"save edited risk {riskId}")
+        return HttpResponseRedirect(f"/riskManagement/projects/projectDetail/phaseDetail/{projectId}/{phaseId}")
+    except Exception as e:
+        log_info(request, f"error in risk edit {e}")
+        return HttpResponseRedirect(f"/riskManagement/projects/projectDetail/phaseDetail/{projectId}/{phaseId}/{riskId}/editRisk")
+
 
 
 def checkRisk(request, projectId, phaseId, riskId):
@@ -525,6 +566,28 @@ def checkRisk(request, projectId, phaseId, riskId):
     log_info(request, f"{action_name} risk from project {projectId}, phase {phaseId}, risk {riskId}")
     return phaseDetail(request, projectId, phaseId)
 
+def risksDetail(request,riskId):
+    template = loader.get_template("riskDetail.html")
+    risk = Risk.objects.get(id=riskId)
+    creator = risk.creator
+    context = {
+    "user" :  User.objects.get(id=request.session["id"]),
+        "risk": {
+            "name": risk.name,
+            "creator": creator.firstName + " " + creator.lastName,
+            "accepted": risk.accepted,
+            "description": risk.description,
+            "category": risk.category,
+            "threat": risk.threat,
+            "triggers": risk.triggers,
+            "reactions": risk.reactions,
+            "probability": risk.probability,
+            "impact": risk.impact,
+            "state": risk.state,
+            "datetime_created": str(risk.datetime_created)
+        },
+    }
+    return HttpResponse(template.render(context, request))
 
 def riskDetail(request, projectId, phaseId, riskId):
     template = loader.get_template("riskDetail.html")
